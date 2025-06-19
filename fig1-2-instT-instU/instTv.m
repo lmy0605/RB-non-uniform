@@ -19,8 +19,8 @@ params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA,'log.log');
 %% calculation
 [Cx, Cy] = ndgrid(params.xGrid(1:end-1), params.yGrid(1:end-1));
 
-%inst fileNum=501
-fileNum=fileNumStart+ceil(fileSum/2);
+%
+fileNum=fileNumEnd;
 [U,V,T,rho] = readBinaryFile(fullfile(inputDir, [namebase, num2str(fileNum),'.bin']),nx,ny);
 U = reshape(U,nx,ny);
 V = reshape(V,nx,ny);

@@ -1,7 +1,7 @@
 % clear; close all; clc;
 % format long
 function params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA, logFileName)
-% CALCULATESYSTEMPARAMETERS 计算系统参数
+% CALCULATESYSTEMPARAMETERS 
 %   params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl, constA, logFileName)
 %   input:
 %       nx          - x gridNumber
@@ -79,7 +79,6 @@ U_LB = sqrt(gBeta * length_LB);
 timeUnit = time_LB; 
 velocityUnit = U_LB;
 
-% --- MODIFICATION START: Replaced disp with fprintf for logging ---
 % This section now either prints to the file (if fileID is valid)
 % or to the command window (if fileID is -1, which we can achieve
 % by using fileID=1 for standard output).
@@ -146,7 +145,6 @@ if writeToFile
     fclose(fileID); % Close the file
     disp(['Parameters successfully written to ', logFileName]);
 end
-% --- MODIFICATION END ---
 
 %% save
 params = struct(...
