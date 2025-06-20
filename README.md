@@ -29,7 +29,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 |:-------- |:-------- |:------------------------------------------------ |
 | `params` | `struct` | 一个包含所有计算出的参数的结构体。这个结构体可以方便地传递给其他函数，用于后续的计算和数据处理。 |
 
-好的，这是一个关于您提供的 MATLAB 代码的 Markdown 格式说明文档。
+
 
 ---
 
