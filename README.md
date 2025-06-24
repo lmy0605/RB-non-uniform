@@ -150,6 +150,8 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 ### 2. 代码说明
 
+![]()
+
 已知：
 
 $\left\langle \varepsilon_{\mathfrak{u}} \right\rangle_{V,t} = \frac{\nu^3}{H^4} (Nu - 1) Ra Pr^{-2}$
