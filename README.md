@@ -144,7 +144,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 1. ${Nu}_{vol} = \sqrt{{Ra}{Pr}} {\langle u^* T^* \rangle}_V + 1$
 2. $Nu_{kinetic}=\sqrt{{Ra}{Pr}} \left\langle \varepsilon_{u}^* \right\rangle_{V}+1$
-3. $Nu_{{thermal}} = \sqrt{RaPr} \langle \varepsilon^*_{T} \rangle_{V}$
+3. $$Nu_{{thermal}} = \sqrt{RaPr} \langle \varepsilon^*_{T} \rangle_{V}$$
 
 脚本生成Nu值的瞬时时间序列（自统计稳态后）及其累积统计特性。
 
