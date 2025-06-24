@@ -144,7 +144,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 1. ${Nu}_{vol} = \sqrt{{Ra}{Pr}} {\langle u^* T^* \rangle}_V + 1$
 2. $Nu_{kinetic}=\sqrt{{Ra}{Pr}} \left\langle \varepsilon_{u}^* \right\rangle_{V}+1$
-3. $Nu_{{thermal}} = \sqrt{RaPr} \langle \varepsilon^*_{T} \rangle_{V}$
+3. $Nu_{{thermal}} = \sqrt{RaPr} \langle \varepsilon ^{*} _{T}  \rangle_{V}$
 
 脚本生成Nu值的瞬时时间序列（自统计稳态后）及其累积统计特性。
 
@@ -179,17 +179,15 @@ NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*params.viscosity0*sqrt(3)/0.1/pa
 
 所以代码中$\varepsilon^*_{\mathfrak{u}}(\mathbf{x}, t)$计算公式为：
 
-$\varepsilon^**{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu_0\sqrt{3}/Ma/l_0 \sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$.
+$\varepsilon^*_{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu_0\sqrt{3}/Ma/l_0 \sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$.
 
 ```matlab
 %NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*Prandtl+1;
 ```
 
-或者消去\nu^*得到
+或者消去$\nu^*$得到
 
 $Nu_{kinetic}=0.5Pr\sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$.$
-
-
 
 ### 3. 自定义函数
 
