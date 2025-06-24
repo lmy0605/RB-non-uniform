@@ -158,9 +158,9 @@ $\varepsilon_{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu \sum_{ij} \left[ \f
 
 定义无量纲方式：
 
-$\nu^*=\sqrt{Pr/Ra}$
+$\nu ^*=\sqrt{Pr/Ra}$
 
-$\varepsilon^*_{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu^* \sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$
+$\varepsilon_{\mathfrak{u}}^* (\mathbf{x}, t) = \frac{1}{2} \nu^* \sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$
 
 可推得$Nu_{kinetic}=\sqrt{{Ra}{Pr}} \left\langle \varepsilon_{u}^* \right\rangle_{V}+1$.
 
