@@ -150,7 +150,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 ### 2. 代码说明
 
-![]()
+![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig4formula.png?raw=true )
 
 已知：
 
