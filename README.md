@@ -29,8 +29,6 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 |:-------- |:-------- |:------------------------------------------------ |
 | `params` | `struct` | 一个包含所有计算出的参数的结构体。这个结构体可以方便地传递给其他函数，用于后续的计算和数据处理。 |
 
-
-
 ---
 
 # fig-1-2-instT-instU
@@ -79,7 +77,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 # fig3-timeSeries0
 
-### `timeseries0_2bin.m` 说明
+## `timeseries0_2bin.m` 说明
 
 ### 1. 功能
 
@@ -133,3 +131,91 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 1. **`calculateSystemParameters.m`**: 存在一个名为 `calculateSystemParameters.m` 的函数文件，并且该文件位于 MATLAB 的搜索路径中。
 2. **`liton_ordered_tec` 工具箱**: 存在一个名为 `liton_ordered_tec` 的类或工具箱，并且它位于 MATLAB 的搜索路径中，用于生成 `.plt` 文件。
+
+---
+
+# fig4-Nu-timeSeries-stationary
+
+### `timeseries_stationary.m`  说明
+
+### 1. 功能
+
+计算**努塞尔数 (Nu)**
+
+1. ${Nu}_{vol} = \sqrt{{Ra}{Pr}} {\langle u^* T^* \rangle}_V + 1$
+2. $Nu_{kinetic}=\sqrt{{Ra}{Pr}} \left\langle \varepsilon_{u}^* \right\rangle_{V}+1$
+3. $Nu_{{thermal}} = \sqrt{RaPr} \langle \varepsilon^*_{{T}} \rangle_{V}$
+
+脚本生成Nu值的瞬时时间序列（自统计稳态后）及其累积统计特性。
+
+### 2. 代码说明
+
+已知：
+
+$\left\langle \varepsilon_{\mathfrak{u}} \right\rangle_{V,t} = \frac{\nu^3}{H^4} (Nu - 1) Ra Pr^{-2}$
+
+$\varepsilon_{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu \sum_{ij} \left[ \frac{\partial u_j(\mathbf{x}, t)}{\partial x_i} + \frac{\partial u_i(\mathbf{x}, t)}{\partial x_j} \right]^2$
+
+定义无量纲方式：
+
+$\nu^*=\sqrt{Pr/Ra}$
+
+$\varepsilon^*_{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu^* \sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$
+
+可推得$Nu_{kinetic}=\sqrt{{Ra}{Pr}} \left\langle \varepsilon_{u}^* \right\rangle_{V}+1$.
+
+
+
+```matlab
+[UX,UY,VX,VY]=GRAD1(U,V,params.dx,params.dy);
+EUsum=(2.*UX).^2+(2.*VY).^2+2.*(VX+UY).^2;
+
+[~,~,NuEU]=nonUniformAverage(EUsum,params.xGrid,params.yGrid);
+
+NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*params.viscosity0*sqrt(3)/0.1/params.length0*sqrt(Prandtl*Rayleigh)+1;
+```
+
+`params.viscosity0`无量纲方式为：$\nu_0=Ma*l_0*\sqrt{Pr/Ra/3}$
+
+即$\nu^*=\nu_0*\sqrt{3}/Ma/l_0$.
+
+所以代码中$\varepsilon^*_{\mathfrak{u}}(\mathbf{x}, t)$计算公式为：
+
+$\varepsilon^*_{\mathfrak{u}}(\mathbf{x}, t) = \frac{1}{2} \nu_0\sqrt{3}/Ma/l_0 \sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2$.
+
+
+
+```matlab
+%NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*Prandtl+1;
+```
+
+或者消去$\nu^*$得到
+
+$Nu_{kinetic}=0.5Pr\sum_{ij} \left[ \frac{\partial u^*_j(\mathbf{x}, t)}{\partial x^*_i} + \frac{\partial u^*_i(\mathbf{x}, t)}{\partial x^*_j} \right]^2+1$
+
+### 3. 自定义函数
+
+#### a. `readBinaryFile(file, nx, ny)`
+
+读取特定格式的二进制文件
+
+#### b. `nonUniformAverage(U, xGrid, yGrid)`
+
+在非均匀网格上，对场量 `U` 进行体积（面积）加权积分的准备步骤。
+
+#### c. `cumulativeAverage(U)`
+
+计算向量的累积平均值。
+
+#### d. `cumulativePopulationVariance(U)`
+
+计算向量的累G积总体方差。
+
+#### e. `GRAD1(U,V,dx,dy)`
+
+在非均匀网格上，使用二阶精度的中心、向前和向后差分格式计算速度场和温度场的一阶梯度。
+
+### 4. 依赖项
+
+1. **`calculateSystemParameters.m`**: 必须存在此函数文件，并位于 MATLAB 搜索路径中。
+2. **`liton_ordered_tec` 工具箱**: 必须存在此工具箱，并位于 MATLAB 搜索路径中，用于生成 `.plt` 文件。
