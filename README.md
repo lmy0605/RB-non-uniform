@@ -221,7 +221,7 @@ $$
 
 #### 1. 公式说明
 
-![] [RB-non-uniform/screenshots/fig5formula2.png at master · lmy0605/RB-non-uniform · GitHub](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula1.png?raw=true)
+![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula2.png?raw=true)
 
 #### 2. 代码实现
 
