@@ -196,15 +196,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 #### 1. 公式说明
 
-瞬时动能耗散率：
-$\epsilon_u(\mathbf{x}, t) = \frac{1}{2} \nu \sum_{i,j} \left[ \frac{\partial u_j(\mathbf{x}, t)}{\partial x_i} + \frac{\partial u_i(\mathbf{x}, t)}{\partial x_j} \right]^2 $
-其中 `ν` 是运动粘度 (`viscosity`)，`u_i` 是瞬时速度分量。
-
-将上式展开（令 `u₁=U`, `u₂=V`, `x₁=x`, `x₂=y`）：
- $\epsilon_u = \frac{1}{2} \nu \left[ \left(\frac{\partial U}{\partial x} + \frac{\partial U}{\partial x}\right)^2 + \left(\frac{\partial V}{\partial y} + \frac{\partial V}{\partial y}\right)^2 + \left(\frac{\partial V}{\partial x} + \frac{\partial U}{\partial y}\right)^2 + \left(\frac{\partial U}{\partial y} + \frac{\partial V}{\partial x}\right)^2 \right] $
-简化后得到：
- $\epsilon_u = \frac{1}{2} \nu \left[ \left(2\frac{\partial U}{\partial x}\right)^2 + \left(2\frac{\partial V}{\partial y}\right)^2 + 2\left(\frac{\partial V}{\partial x} + \frac{\partial U}{\partial y}\right)^2 \right] $
-$\epsilon_u = \nu \left[ 2\left(\frac{\partial U}{\partial x}\right)^2 + 2\left(\frac{\partial V}{\partial y}\right)^2 + \left(\frac{\partial V}{\partial x} + \frac{\partial U}{\partial y}\right)^2 \right]$
+![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula1.png?raw=true)
 
 #### 2. 代码实现
 
@@ -216,7 +208,11 @@ EUavg=EUavg+((2.*UX).^2+(2.*VY).^2+2.*(VX+UY).^2)*viscosity*0.5;
 ```
 
 Kolmogorov尺度的计算：
- $\eta_u = \left( \frac{\nu^3}{\langle \epsilon_u \rangle} \right)^{1/4} $
+
+$$
+\eta_u = \left( \frac{\nu^3}{\langle \epsilon_u \rangle} \right)^{1/4}
+$$
+
 代码是 `etaUAvg=(viscosity.^3./EUavg).^0.25;`
 
 ### 使用脉动速度场计算 (TKE Dissipation)
@@ -225,16 +221,7 @@ Kolmogorov尺度的计算：
 
 #### 1. 公式说明
 
-湍动能耗散率 `ε` 定义为由脉动速度 `u' = u - <u>` 引起的耗散的时间平均值，其中`<u>`是时间平均速度。
- $\epsilon = \left\langle 2 \nu S'_{ij}S'_{ij} \right\rangle = \left\langle \frac{1}{2} \nu \sum_{i,j} \left[ \frac{\partial u'_j}{\partial x_i} + \frac{\partial u'_i}{\partial x_j} \right]^2 \right\rangle $
-其中 `S'_{ij}` 是脉动应变率张量。这个公式的形式与 `ε_u` 完全相同，只是将瞬时速度 `u` 替换为了脉动速度 `u'`，然后取时间平均。
-
-因此，2D形式为：
- $\epsilon = \left\langle \nu \left[ 2\left(\frac{\partial U'}{\partial x}\right)^2 + 2\left(\frac{\partial V'}{\partial y}\right)^2 + \left(\frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y}\right)^2 \right] \right\rangle $
-其中 `U' = U - UAvg` 和 `V' = V - VAvg`。
-
-`dissipation` 的计算基于：
-$ \epsilon = 2\nu \left\langle S'_{ij}S'_{ij} \right\rangle = 2\nu \left\langle \left( \frac{\partial U'}{\partial x} \right)^2 + \left( \frac{\partial V'}{\partial y} \right)^2 + \frac{1}{2} \left( \frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y} \right)^2 \right\rangle$
+![] [RB-non-uniform/screenshots/fig5formula2.png at master · lmy0605/RB-non-uniform · GitHub](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula1.png?raw=true)
 
 #### 2. 代码实现
 
@@ -250,11 +237,19 @@ $ \epsilon = 2\nu \left\langle S'_{ij}S'_{ij} \right\rangle = 2\nu \left\langle 
    - 最后乘以 `2ν`。
 
 组合起来，`dissipationAvg` 计算：
- $2 \nu \left\langle (UX\_prime)^2 + (VY\_prime)^2 + 0.5 \cdot (VX\_prime + UY\_prime)^2 \right\rangle $
-$\epsilon = 2\nu \left\langle \left( \frac{\partial U'}{\partial x} \right)^2 + \left( \frac{\partial V'}{\partial y} \right)^2 + \frac{1}{2} \left( \frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y} \right)^2 \right\rangle$
+
+$$
+2 \nu \left\langle (UX\_prime)^2 + (VY\_prime)^2 + 0.5 \cdot (VX\_prime + UY\_prime)^2 \right\rangle
+$$
+
+$$
+\epsilon = 2\nu \left\langle \left( \frac{\partial U'}{\partial x} \right)^2 + \left( \frac{\partial V'}{\partial y} \right)^2 + \frac{1}{2} \left( \frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y} \right)^2 \right\rangle
+$$
 
 Kolmogorov尺度的计算：
-$ \eta_k = \left( \frac{\nu^3}{\epsilon} \right)^{1/4} $
-代码是 `etaKAvg=(viscosity.^3./dissipationAvg).^0.25;`。
 
----
+$$
+\eta_k = \left( \frac{\nu^3}{\epsilon} \right)^{1/4}
+$$
+
+代码是 `etaKAvg=(viscosity.^3./dissipationAvg).^0.25;`
