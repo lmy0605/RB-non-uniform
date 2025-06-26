@@ -178,3 +178,83 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 1. **`calculateSystemParameters.m`**: 必须存在此函数文件，并位于 MATLAB 搜索路径中。
 2. **`liton_ordered_tec` 工具箱**: 必须存在此工具箱，并位于 MATLAB 搜索路径中，用于生成 `.plt` 文件。
+
+---
+
+# fig5-etaK
+
+### `etaK_timeAvg.m` 说明
+
+分别计算了：
+
+1. **总动能耗散率** (`EUavg`)：基于瞬时速度场 `u` 计算耗散，然后进行时间平均。
+2. **湍动能耗散率** (`dissipationAvg`)：基于脉动速度场 `u'` 计算耗散，然后进行时间平均。
+
+### 使用瞬时速度场计算 (Kinetic Energy Dissipation)
+
+这种方法计算的是**总动能的瞬时耗散率 `ε_u`**，然后对其进行时间平均得到 `<ε_u>`。
+
+#### 1. 公式说明
+
+瞬时动能耗散率：
+$\epsilon_u(\mathbf{x}, t) = \frac{1}{2} \nu \sum_{i,j} \left[ \frac{\partial u_j(\mathbf{x}, t)}{\partial x_i} + \frac{\partial u_i(\mathbf{x}, t)}{\partial x_j} \right]^2 $
+其中 `ν` 是运动粘度 (`viscosity`)，`u_i` 是瞬时速度分量。
+
+将上式展开（令 `u₁=U`, `u₂=V`, `x₁=x`, `x₂=y`）：
+ $\epsilon_u = \frac{1}{2} \nu \left[ \left(\frac{\partial U}{\partial x} + \frac{\partial U}{\partial x}\right)^2 + \left(\frac{\partial V}{\partial y} + \frac{\partial V}{\partial y}\right)^2 + \left(\frac{\partial V}{\partial x} + \frac{\partial U}{\partial y}\right)^2 + \left(\frac{\partial U}{\partial y} + \frac{\partial V}{\partial x}\right)^2 \right] $
+简化后得到：
+ $\epsilon_u = \frac{1}{2} \nu \left[ \left(2\frac{\partial U}{\partial x}\right)^2 + \left(2\frac{\partial V}{\partial y}\right)^2 + 2\left(\frac{\partial V}{\partial x} + \frac{\partial U}{\partial y}\right)^2 \right] $
+$\epsilon_u = \nu \left[ 2\left(\frac{\partial U}{\partial x}\right)^2 + 2\left(\frac{\partial V}{\partial y}\right)^2 + \left(\frac{\partial V}{\partial x} + \frac{\partial U}{\partial y}\right)^2 \right]$
+
+#### 2. 代码实现
+
+在第一个循环中计算 `EUavg`：
+
+```matlab
+[UX,UY,VX,VY]=GRAD1(U,V,params.dx,params.dy);
+EUavg=EUavg+((2.*UX).^2+(2.*VY).^2+2.*(VX+UY).^2)*viscosity*0.5;
+```
+
+Kolmogorov尺度的计算：
+ $\eta_u = \left( \frac{\nu^3}{\langle \epsilon_u \rangle} \right)^{1/4} $
+代码是 `etaUAvg=(viscosity.^3./EUavg).^0.25;`
+
+### 使用脉动速度场计算 (TKE Dissipation)
+
+这种方法计算的是**湍动能 (Turbulent Kinetic Energy, TKE) 的耗散率 `ε`**。
+
+#### 1. 公式说明
+
+湍动能耗散率 `ε` 定义为由脉动速度 `u' = u - <u>` 引起的耗散的时间平均值，其中`<u>`是时间平均速度。
+ $\epsilon = \left\langle 2 \nu S'_{ij}S'_{ij} \right\rangle = \left\langle \frac{1}{2} \nu \sum_{i,j} \left[ \frac{\partial u'_j}{\partial x_i} + \frac{\partial u'_i}{\partial x_j} \right]^2 \right\rangle $
+其中 `S'_{ij}` 是脉动应变率张量。这个公式的形式与 `ε_u` 完全相同，只是将瞬时速度 `u` 替换为了脉动速度 `u'`，然后取时间平均。
+
+因此，2D形式为：
+ $\epsilon = \left\langle \nu \left[ 2\left(\frac{\partial U'}{\partial x}\right)^2 + 2\left(\frac{\partial V'}{\partial y}\right)^2 + \left(\frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y}\right)^2 \right] \right\rangle $
+其中 `U' = U - UAvg` 和 `V' = V - VAvg`。
+
+`dissipation` 的计算基于：
+$ \epsilon = 2\nu \left\langle S'_{ij}S'_{ij} \right\rangle = 2\nu \left\langle \left( \frac{\partial U'}{\partial x} \right)^2 + \left( \frac{\partial V'}{\partial y} \right)^2 + \frac{1}{2} \left( \frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y} \right)^2 \right\rangle$
+
+#### 2. 代码实现
+
+在第二个循环中：
+
+1. `UPrime=U-UAvg; VPrime=V-VAvg;` 计算了脉动速度。
+2. `[UX_prime,UY_prime,VX_prime,VY_prime]=GRAD1(UPrime,VPrime,params.dx,params.dy);` 计算了脉动速度的梯度。
+3. `dissipation=dissipation+(UX_prime.^2+VY_prime.^2+0.5*(VX_prime+UY_prime).^2);`
+   - 这一步计算了括号内的项 `(...)`，并进行了累加。
+4. `dissipation=dissipation/fileSum;`
+   - 这一步完成了时间平均 `<...>`。
+5. `dissipationAvg=viscosity*dissipation*2;`
+   - 最后乘以 `2ν`。
+
+组合起来，`dissipationAvg` 计算：
+ $2 \nu \left\langle (UX\_prime)^2 + (VY\_prime)^2 + 0.5 \cdot (VX\_prime + UY\_prime)^2 \right\rangle $
+$\epsilon = 2\nu \left\langle \left( \frac{\partial U'}{\partial x} \right)^2 + \left( \frac{\partial V'}{\partial y} \right)^2 + \frac{1}{2} \left( \frac{\partial V'}{\partial x} + \frac{\partial U'}{\partial y} \right)^2 \right\rangle$
+
+Kolmogorov尺度的计算：
+$ \eta_k = \left( \frac{\nu^3}{\epsilon} \right)^{1/4} $
+代码是 `etaKAvg=(viscosity.^3./dissipationAvg).^0.25;`。
+
+---
