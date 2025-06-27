@@ -253,3 +253,63 @@ $$
 $$
 
 代码是 `etaKAvg=(viscosity.^3./dissipationAvg).^0.25;`
+
+
+
+
+
+### `grid_resolution_analysis.m` 说明
+
+### 1. 功能
+
+验证网格尺度小于Kolmogorov尺度。
+
+### 2. 分辨率指标计算
+
+脚本计算了两种分辨率指标 (`grid_resolution` 和 `grid_resolution2`)。
+
+* **标准一：最长边**
+  
+  $$
+  \Delta_1(i,j) = \max(\Delta x_i, \Delta y_j)
+  $$
+  
+  ```matlab
+  grid_resolution = max(deltaX, deltaY); 
+  ```
+
+* **标准二：等效面积**
+  
+  $$
+  \Delta_2(i,j) = \sqrt{\Delta x_i \cdot \Delta y_j}
+  $$
+  
+  此处的 `deltaxy` 是由函数直接返回的面积矩阵 `node_area_weights`。
+  
+  ```matlab
+  grid_resolution2 = sqrt(deltaxy);
+  ```
+
+将上述两种网格分辨率分别除以输入的物理尺度 `etaK` 和 `etaU`。
+
+$$
+\text{Resolution Ratio}(i,j) = \frac{\Delta_2(i,j)}{\eta_K(i,j)}
+$$
+
+```matlab
+% 使用等效面积法计算与Kolmogorov动能耗散尺度的比率
+resolution_ratio_etaK2 = grid_resolution2 ./ etaK;
+
+% 使用等效面积法计算与Batchelor热耗散尺度的比率
+resolution_ratio_etaU2 = grid_resolution2 ./ etaU;
+```
+
+展弦比是衡量单元拉伸程度的指标，理想值为1（正方形）。
+
+$$
+\text{Aspect Ratio}(i,j) = \frac{\max(\Delta x_i, \Delta y_j)}{\min(\Delta x_i, \Delta y_j)}
+$$
+
+```matlab
+aspect_ratio = max(deltaX, deltaY) ./ min(deltaX, deltaY);
+```
