@@ -254,10 +254,6 @@ $$
 
 代码是 `etaKAvg=(viscosity.^3./dissipationAvg).^0.25;`
 
-
-
-
-
 ### `grid_resolution_analysis.m` 说明
 
 ### 1. 功能
@@ -267,6 +263,16 @@ $$
 ### 2. 分辨率指标计算
 
 脚本计算了两种分辨率指标 (`grid_resolution` 和 `grid_resolution2`)。
+
+首先计算:
+
+$$
+\Delta x_i=\frac{x_{i+1}-x_{i-1}}{2}
+$$
+
+$$
+\Delta y_j=\frac{y_{j+1}-y_{j-1}}{2}
+$$
 
 * **标准一：最长边**
   
