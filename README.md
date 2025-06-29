@@ -319,3 +319,19 @@ $$
 ```matlab
 aspect_ratio = max(deltaX, deltaY) ./ min(deltaX, deltaY);
 ```
+
+---
+
+# fig5-Rascaling
+
+### `ReNu_Ra.m`**说明**
+
+计算全局Nu数和Re数随Ra数变化的**标度率**。
+
+对`Re`、`Nu_wall`（壁面Nu）、`Nu_vol`（体积Nu）、`Nu_eu`（动能耗散Nu）、`Nu_et`（热耗散Nu）与`Ra`数的关系，进行**幂律拟合（Power-Law Fitting）**，确定标度律关系式：
+
+$$
+Y = C \cdot Ra^{\alpha}
+$$
+
+拟合结果如下：
