@@ -335,3 +335,5 @@ Y = C \cdot Ra^{\alpha}
 $$
 
 拟合结果如下：
+
+![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig6result.png?raw=true)
