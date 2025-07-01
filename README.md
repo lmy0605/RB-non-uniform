@@ -322,7 +322,7 @@ aspect_ratio = max(deltaX, deltaY) ./ min(deltaX, deltaY);
 
 ---
 
-# fig5-Rascaling
+# fig6-Rascaling
 
 ### `ReNu_Ra.m`**说明**
 
@@ -337,3 +337,22 @@ $$
 拟合结果如下：
 
 ![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig6result.png?raw=true)
+
+---
+
+# fig8-PDF
+
+### `PDF_Nu1e9_fitted.m`说明
+
+对Nu数时间序列数据进行统计分析。
+
+主要功能包括：
+
+- **数据加载**: 从指定的 `.plt` 文件中读取多种Nusselt数（`NuWallAvg`, `NuVolAvg`, `NuEUAvg`, `NuETAvg`）的时间序列。
+- **基本统计**: 计算并记录每个Nusselt数时间序列的均值和标准差。
+- **概率密度函数 (PDF) 计算**: 对标准化后的数据计算经验PDF（Empirical PDF）。
+- **分布拟合**: 将每个Nusselt数脉动数据分别与高斯（Gaussian）分布和广义极值（GEV）分布进行拟合。
+- **模型比较**: 通过可视化的PDF曲线对比和量化的信息准则（AIC/BIC），判断哪种分布能更好地描述数据。
+- **结果输出**:
+  - 将所有统计和分析结果保存到一个详细的日志文件 (`.txt`)。
+  - 将PDF数据和拟合曲线数据导出为Tecplot格式的 `.plt` 文件。

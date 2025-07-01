@@ -1,0 +1,99 @@
+Statistics Log for Nusselt Number Time Series
+==================================================
+Date: 01-Jul-2025 10:22:44
+Rayleigh Number: 1.000000e+09
+Data points used: 8500
+
+--- Original Data Statistics (Population Std Dev) ---
+Variable      |          Mean |   Std Deviation
+--------------------------------------------------
+NuWallAvg     |     53.319306 |        2.387144
+NuVolAvg      |     53.272987 |       18.188256
+NuEUAvg       |     51.765283 |        3.936903
+NuETAvg       |     52.845074 |        3.445166
+--------------------------------------------------
+--- Distribution Fitting Analysis ---
+
+======================================================
+           ANALYZING: NuWallAvg
+======================================================
+
+--- Fit Results for NuWallAvg ---
+Gaussian Fit Parameters:
+    mu: 6.19719e-15,  sigma: 1.00006
+GEV Fit Parameters:
+    k (shape): -0.132066,  sigma (scale): 0.907983,  mu (location): -0.414747
+-------------------------------------
+Fit comparison plot saved as PDF_Fit_Comparison_NuWallAvg_1e9.png
+
+--- Goodness-of-Fit Comparison for NuWallAvg ---
+Distribution | Log-Likelihood |   AIC    |   BIC    
+-----------------------------------------------------
+Gaussian     |    -12060.9776 | 24125.96 | 24140.05 
+GEV          |    -11901.0595 | 23808.12 | 23829.26 
+-----------------------------------------------------
+Conclusion: GEV distribution provides a better fit (lower AIC).
+Fitted PDF data saved to PDF_Fits_NuWallAvg_1e9.plt
+
+======================================================
+           ANALYZING: NuVolAvg
+======================================================
+
+--- Fit Results for NuVolAvg ---
+Gaussian Fit Parameters:
+    mu: -2.81459e-15,  sigma: 1.00006
+GEV Fit Parameters:
+    k (shape): -0.207955,  sigma (scale): 0.975131,  mu (location): -0.387149
+-------------------------------------
+Fit comparison plot saved as PDF_Fit_Comparison_NuVolAvg_1e9.png
+
+--- Goodness-of-Fit Comparison for NuVolAvg ---
+Distribution | Log-Likelihood |   AIC    |   BIC    
+-----------------------------------------------------
+Gaussian     |    -12060.9776 | 24125.96 | 24140.05 
+GEV          |    -12086.2023 | 24178.40 | 24199.55 
+-----------------------------------------------------
+Conclusion: Gaussian distribution provides a better fit or is comparable (lower or equal AIC).
+Fitted PDF data saved to PDF_Fits_NuVolAvg_1e9.plt
+
+======================================================
+           ANALYZING: NuEUAvg
+======================================================
+
+--- Fit Results for NuEUAvg ---
+Gaussian Fit Parameters:
+    mu: -1.1851e-14,  sigma: 1.00006
+GEV Fit Parameters:
+    k (shape): -0.147025,  sigma (scale): 0.917545,  mu (location): -0.409201
+-------------------------------------
+Fit comparison plot saved as PDF_Fit_Comparison_NuEUAvg_1e9.png
+
+--- Goodness-of-Fit Comparison for NuEUAvg ---
+Distribution | Log-Likelihood |   AIC    |   BIC    
+-----------------------------------------------------
+Gaussian     |    -12060.9776 | 24125.96 | 24140.05 
+GEV          |    -11926.6652 | 23859.33 | 23880.47 
+-----------------------------------------------------
+Conclusion: GEV distribution provides a better fit (lower AIC).
+Fitted PDF data saved to PDF_Fits_NuEUAvg_1e9.plt
+
+======================================================
+           ANALYZING: NuETAvg
+======================================================
+
+--- Fit Results for NuETAvg ---
+Gaussian Fit Parameters:
+    mu: -4.55207e-15,  sigma: 1.00006
+GEV Fit Parameters:
+    k (shape): -0.0612121,  sigma (scale): 0.838442,  mu (location): -0.433579
+-------------------------------------
+Fit comparison plot saved as PDF_Fit_Comparison_NuETAvg_1e9.png
+
+--- Goodness-of-Fit Comparison for NuETAvg ---
+Distribution | Log-Likelihood |   AIC    |   BIC    
+-----------------------------------------------------
+Gaussian     |    -12060.9776 | 24125.96 | 24140.05 
+GEV          |    -11588.3208 | 23182.64 | 23203.79 
+-----------------------------------------------------
+Conclusion: GEV distribution provides a better fit (lower AIC).
+Fitted PDF data saved to PDF_Fits_NuETAvg_1e9.plt
