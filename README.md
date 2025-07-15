@@ -356,3 +356,19 @@ $$
 - **结果输出**:
   - 将所有统计和分析结果保存到一个详细的日志文件 (`.txt`)。
   - 将PDF数据和拟合曲线数据导出为Tecplot格式的 `.plt` 文件。
+
+---
+
+# fig12-vor
+
+## `vorticity_inden_sort.m`说明
+
+计算$\omega _ z$,阈值离散并确定中心
+
+## `vorticityBuoyancy_inden_sort.m`说明
+
+计算$\nabla \times F$,阈值离散并确定中心
+
+## `enstro_inden_sort.m`说明
+
+计算$\omega * (\nabla \times F)$,阈值离散并确定中心
