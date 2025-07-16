@@ -372,3 +372,30 @@ $$
 ## `enstro_inden_sort.m`说明
 
 计算$\omega * (\nabla \times F)$,阈值离散并确定中心
+
+## `center_tra_new.m`说明
+
+###### 自动判断 LSC 的旋转方向（顺时针或逆时针）：
+
+通过比较中心区域的正负涡量贡献来实现。
+
+```matlab
+    pos_mask = vor_z_direction > 0;
+    neg_mask = vor_z_direction < 0;
+    
+    positive_enstrophy = sum(vor_z_direction(pos_mask).^2 .* area_weights_direction(pos_mask));
+    negative_enstrophy = sum(vor_z_direction(neg_mask).^2 .* area_weights_direction(neg_mask));
+
+    is_LSC_clockwise = negative_enstrophy > positive_enstrophy;
+```
+
+###### 识别 LSC中心：
+
+1. 根据涡量方向和设定的阈值生成二值化图像。
+2. 识别图像中所有的涡旋结构。使用Image processing toolbox中的`bwlabel`函数。
+3. 计算**每一个**涡旋的物理面积和质心，筛选出位于计算域中心区域的涡旋。使用Image processing toolbox中的`regionprops`函数。
+4. 在中心区域的涡旋中，选择面积最大的一个作为 LSC。
+
+###### 输出结果：
+
+使用 liton_ordered_tec 类将存储了所有 LSC 中心坐标的数组写入 lsc_trajectory.plt 文件。
