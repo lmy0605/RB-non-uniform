@@ -35,8 +35,6 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 ## `instTv.m`说明
 
-### 1. 功能
-
 读取一个特定时间点的结果二进制文件，对数据进行无量纲化，导出为 Tecplot 可视化软件支持的 `.plt` 格式文件。
 
 ### 2. 流程
@@ -79,33 +77,9 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 ## `timeseries0_2bin.m` 说明
 
-### 1. 功能
-
 计算并导出**雷诺数 (Re)** 和**努塞尔数 (Nu)** 的时间演化。
 
-### 2. 流程
-
-#### 步骤 1: 参数配置
-
-#### 步骤 2: 目录验证
-
-- 开始计算之前，检查指定的数据输入目录是否存在。
-
-#### 步骤 3: 循环与计算
-
-1. **分批次循环处理**
-2. **循环内**: 
-   - 根据当前数据集的时间步长和文件编号，计算并记录当前的**物理时间**。
-   - 调用 `readBinaryFile` 函数读取瞬时速度场 (`U`, `V`) 和温度场 (`T`)。
-   - 调用 `deri_Twall` 计算壁面温度梯度。
-   - 调用 `nonUniformAverage` 对速度平方和壁面温度梯度进行空间加权平均。
-
-#### 步骤 4: 后处理与导出
-
-1. **累积统计计算**: 调用 `cumulativeAverage` 和 `cumulativePopulationVariance` 函数计算 Re 和 Nu 的**累积平均值**和**累积方差**。
-2. **使用 `liton_ordered_tec` 工具箱导出**
-
-### 3. 自定义函数
+###### 自定义函数
 
 #### a. `readBinaryFile(file, nx, ny)`
 
@@ -126,11 +100,6 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 #### e. `cumulativePopulationVariance(U)`
 
 - **功能**: 计算向量的累积总体方差。
-
-### 4. 依赖项
-
-1. **`calculateSystemParameters.m`**: 存在一个名为 `calculateSystemParameters.m` 的函数文件，并且该文件位于 MATLAB 的搜索路径中。
-2. **`liton_ordered_tec` 工具箱**: 存在一个名为 `liton_ordered_tec` 的类或工具箱，并且它位于 MATLAB 的搜索路径中，用于生成 `.plt` 文件。
 
 ---
 
@@ -382,7 +351,7 @@ $$
 ```matlab
     pos_mask = vor_z_direction > 0;
     neg_mask = vor_z_direction < 0;
-    
+
     positive_enstrophy = sum(vor_z_direction(pos_mask).^2 .* area_weights_direction(pos_mask));
     negative_enstrophy = sum(vor_z_direction(neg_mask).^2 .* area_weights_direction(neg_mask));
 
@@ -399,3 +368,229 @@ $$
 ###### 输出结果：
 
 使用 liton_ordered_tec 类将存储了所有 LSC 中心坐标的数组写入 lsc_trajectory.plt 文件。
+
+---
+
+# fig14-tke
+
+### `tke.m`说明
+
+读取一系列瞬时流场文件（`.bin`），计算时间平均统计量，最终计算出TKE产生项和耗散项的空间分布保存为Tecplot可读的 `.plt` 文件。
+
+- **TKE产生项计算**:
+  - **剪切产生项 (Shear Production)**: `-<u'_i u'_j> * (∂<U_i>/∂x_j)`
+  - **浮力产生项 (Buoyancy Production)**: `<v'T'>` (假设重力在y方向)
+- **TKE耗散项计算**:
+  - **伪耗散 (Pseudo-dissipation)**: `ν * <(∂u'_i/∂x_j) * (∂u'_i/∂x_j)>`
+  - **真耗散 (True dissipation)**: `2 * ν * <s'_{ij}s'_{ij}>`，其中 `s'_{ij}` 是脉动应变率张量。
+- **非均匀网格处理**: 使用自定义的有限差分格式（`GRAD1`函数）和积分权重（`nonUniformAverage`函数）来处理非均匀网格。
+
+---
+
+# fig16-TKE v.s. Ra
+
+### `tke_ra.m`说明
+
+通过循环遍历一组不同瑞利数的模拟工况，读取每个工况对应的 `production.plt` 和 `dissipation.plt` 文件，计算全场体积平均的产生率和耗散率。
+
+- **数据加载**: 使用 `read_tecplot_plt` 函数从每个工况的目录中读取 `production.plt` 和 `dissipation.plt` 文件。
+- **体积平均计算**:
+  - 利用 `nonUniformAverage` 辅助函数计算非均匀网格上的积分。
+  - 通过将积分结果除以计算域总面积（`params.length0^2`），得到体积平均的TKE产生率和耗散率。
+- **可视化**:
+  - 调用 `plot_matlab` 函数，分别生成两张PNG图。
+  - **图1 (`p_ra.png`)**: TKE产生率 vs. 瑞利数。
+  - **图2 (`d_ra.png`)**: TKE耗散率 vs. 瑞利数。
+
+---
+
+# plot_matlab
+
+### `plot_matlab.m`说明
+
+#### 1. 功能概述
+
+`plot_matlab` 是一个MATLAB绘图函数，可以简化从各种数据源创建图表的过程。
+
+#### 2. 基本用法
+
+函数调用有两种主要形式：
+
+1. **从变量绘图**：
+   
+   ```matlab
+   plot_matlab(x_data, y_data, ...);
+   ```
+
+2. **从文件绘图**：
+   
+   ```matlab
+   plot_matlab('Filename', 'path/to/file.dat', ...);
+   ```
+
+#### 3. 主要可配置参数详解
+
+以下是 `plot_matlab` 支持的所有参数，可通过 `'ParameterName', ParameterValue` 的形式进行设置。
+
+##### 3.1 数据源参数 (`DataSource` and File-related)
+
+| 参数名              | 类型                          | 默认值          | 描述                                                                                                                                                                      |
+|:---------------- |:--------------------------- |:------------ |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`DataSource`** | `string`                    | `'variable'` | 指定数据来源。可选值为 `'variable'`（从MATLAB变量）或 `'file'`（从文件）。如果指定了 `Filename` 参数，此项会自动设为 `'file'`。                                                                                |
+| **`Filename`**   | `string` or `cell`          | `''`         | 要读取的数据文件名。可以是单个文件名（字符串），也可以是多个文件名的元胞数组（`{'file1.dat', 'file2.dat'}`）。                                                                                                   |
+| **`XVariable`**  | `numeric`, `string`, `cell` | `1`          | **仅用于文件模式**。指定用作X轴的数据。可以是：<br>- **数字索引**: `1` (第一列)。<br>- **变量名**: `'Time'`。<br>- **数学表达式**: `'sqrt(X.^2 + Y.^2)'`。<br>- **元胞数组**: `{'Time', 2}` (为多个文件分别指定)。           |
+| **`YVariable`**  | `numeric`, `string`, `cell` | *all others* | **仅用于文件模式**。指定用作Y轴的数据。可以是：<br>- **数字索引**: `2` (第二列)。<br>- **变量名**: `'Velocity'`。<br>- **数学表达式**: `'Pressure/1000'`。<br>- **元胞数组**: `{2, 'Pressure', 'U*0.5'}` (绘制多条曲线)。 |
+
+##### 3.2 基础绘图数据 (`x` and `y`)
+
+| 参数名     | 类型                         | 默认值  | 描述                                                                                                                             |
+|:------- |:-------------------------- |:---- |:------------------------------------------------------------------------------------------------------------------------------ |
+| **`x`** | `vector`                   | `[]` | **仅用于变量模式**。提供X轴的数据向量。                                                                                                         |
+| **`y`** | `vector`, `matrix`, `cell` | `[]` | **仅用于变量模式**。提供Y轴的数据。可以是：<br>- **向量**: `y` (绘制一条曲线)。<br>- **矩阵**: `[y1; y2]'` (每列是一条曲线)。<br>- **元胞数组**: `{y1, y2}` (每个元胞是一条曲线)。 |
+
+##### 3.3 图例与标签 (`Legend` and `Labels`)
+
+| 参数名                    | 类型        | 默认值     | 描述                                                                  |
+|:---------------------- |:--------- |:------- |:------------------------------------------------------------------- |
+| **`LegendLabels`**     | `cell`    | `{}`    | 一个字符串元胞数组，为每条曲线提供图例标签，例如 `{'Curve 1', 'Curve 2'}`。其数量必须与绘制的曲线数完全匹配。 |
+| **`ShowLegend`**       | `logical` | `true`  | 是否显示图例。当有多条曲线时，默认为 `true`。                                          |
+| **`XLabel`**           | `string`  | 自动推断    | X轴的标签文本。                                                            |
+| **`YLabel`**           | `string`  | 自动推断    | Y轴的标签文本。                                                            |
+| **`LabelInterpreter`** | `string`  | `'tex'` | 坐标轴和图例标签的解释器。可选值为 `'tex'`, `'latex'`, `'none'`。                     |
+
+##### 3.4 坐标轴控制 (`Axis Control`)
+
+| 参数名                 | 类型       | 默认值      | 描述                                        |
+|:------------------- |:-------- |:-------- |:----------------------------------------- |
+| **`LogScale`**      | `string` | `'none'` | 设置对数坐标轴。可选值为 `'x'`, `'y'`, `'xy'`。        |
+| **`XLim`**          | `vector` | `[]`     | 设置X轴的范围，例如 `[0, 10]`。                     |
+| **`YLim`**          | `vector` | `[]`     | 设置Y轴的范围，例如 `[-1, 1]`。                     |
+| **`XTickInterval`** | `scalar` | `[]`     | **仅用于线性轴**。设置X轴主刻度的间隔。                    |
+| **`YTickInterval`** | `scalar` | `[]`     | **仅用于线性轴**。设置Y轴主刻度的间隔。                    |
+| **`AxisLayer`**     | `string` | `'top'`  | 将坐标轴层（刻度和框线）置于顶层（`'top'`）或底层（`'bottom'`）。 |
+| **`TickDirection`** | `string` | `'out'`  | 设置刻度线的方向，向内（`'in'`）或向外（`'out'`）。          |
+
+##### 3.5 样式与外观 (`Style & Appearance`)
+
+这些参数可以接受**单个值**（应用于所有曲线）或**元胞数组**（循环应用于每条曲线）。
+
+| 参数名                   | 类型                      | 默认值             | 描述                                                                         |
+|:--------------------- |:----------------------- |:--------------- |:-------------------------------------------------------------------------- |
+| **`LineColor`**       | `string`, `RGB`, `cell` | 预设颜色            | 线的颜色。支持标准颜色名 (`'r'`), RGB三元组 (`[1 0 0]`), 或预设颜色名 `colorN` (例如 `'color1'`)。 |
+| **`LineStyle`**       | `string`, `cell`        | `'-'`           | 线的样式。例如 `'-'`, `'--'`, `':'`, `'-.'`。                                      |
+| **`LineWidth`**       | `scalar`, `cell`        | `1.5`           | 线的宽度。                                                                      |
+| **`Marker`**          | `string`, `cell`        | `'none'`        | 数据点的标记样式。例如 `'o'`, `'s'`, `'d'`, `'^'`。                                    |
+| **`MarkerSize`**      | `scalar`, `cell`        | `8`             | 标记的大小。                                                                     |
+| **`MarkerFaceColor`** | `string`, `RGB`, `cell` | `'w'`           | 标记的填充颜色。                                                                   |
+| **`MarkerEdgeColor`** | `string`, `RGB`, `cell` | *同 `LineColor`* | 标记的边缘颜色。                                                                   |
+| **`MarkerInterval`**  | `scalar`, `cell`        | `5`             | 每隔多少个数据点显示一个标记。设为`1`显示所有标记。                                                |
+
+##### 3.6 输出参数 (`Output`)
+
+| 参数名                  | 类型       | 默认值                 | 描述                             |
+|:-------------------- |:-------- |:------------------- |:------------------------------ |
+| **`OutputFilename`** | `string` | `'plot_output.png'` | 保存输出图像的文件名。                    |
+| **`Resolution`**     | `scalar` | `600`               | 输出图像的分辨率 (DPI)。                |
+| **`CanvasRatio`**    | `vector` | `[10, 7]`           | 图窗画布的宽高比，例如 `[width, height]`。 |
+
+### `test.m`说明
+
+**示例 1: 从变量绘图，并为不同曲线指定不同样式**
+
+```matlab
+x_data = linspace(-5, 5, 200);
+y_data = exp(-x_data.^2 / 2) .* cos(3*x_data);
+y_data2 = 1.5*cos(3*x_data);
+plot_matlab('x', x_data, 'y', {y_data,y_data2}, ...
+            'CanvasRatio', [10, 7], ...
+            'XLim', [-5, 5], ...
+            'YLim', [-2, 2], ...
+            'XTickInterval', 2, ...
+            'YTickInterval', 0.5, ...
+            'LineColor', {[0.8500, 0.3250, 0.0980],...
+                     [30/255,144/255,255/255]}, ... % 为每条曲线设置不同颜色
+            'LineWidth', 1.5, ...
+            'LineStyle', {'-', '-'}, ...  % 为每条曲线设置不同线型
+            'Marker', {'o', 's'}, ...   % 为每条曲线设置不同标记
+            'MarkerSize', 8, ...
+            'MarkerFaceColor', 'w', ...
+            'MarkerInterval', 10, ...
+            'XLabel', '\it{Time} \rm{(s)}', ...
+            'YLabel', '\it{Amplitude}', ...
+            'LegendLabels',{'Gauss Modulated','Cosine'},...
+            'OutputFilename', 'example1_linear_multi_curve.png', ...
+            'Resolution', 600);
+```
+
+**示例 2: 从变量绘图，双对数坐标图**
+
+```matlab
+x_log = logspace(-1, 2, 100); % 从 10^-1 到 10^2
+y_log = 50 * x_log.^-1.5;     % y = 50 * x^(-1.5)
+plot_matlab('x', x_log, 'y', y_log, ...
+            'LogScale', 'xy', ... % <-- 使用双对数坐标
+            'LineWidth', 2, ...
+            'Marker', 'o', ...
+            'MarkerInterval',10,...
+            'MarkerFaceColor', 'w', ...
+            'XLabel', '\it{Frequency} \rm{(Hz)}', ...
+            'YLabel', 'PSD', ...
+            'OutputFilename', 'example2_loglog_plot.png');
+```
+
+**示例 3: 从变量绘图，半对数坐标图**
+
+```matlab
+x_semilog = linspace(0, 5, 200);
+y_semilog = 100 * exp(-1.5 * x_semilog); % 指数衰减
+plot_matlab(x_semilog, y_semilog, ...
+            'LogScale', 'y', ... % <-- 仅Y轴为对数
+            'LineWidth', 2, ...
+            'LineColor', 'r', ...
+            'XLabel', '\it{t}', ...
+            'YLabel', '\it{Concentration} \rm{(log scale)}', ...
+            'YLim', [1, 100], ... % 在对数尺度上设置范围
+            'OutputFilename', 'example3_semilogy_plot.png');
+```
+
+**示例 4: 从`.plt`文件绘图**
+
+```matlab
+% 假设 'u_y.plt' 是一个简单的ASCII文件，第一列是时间，其他是数据
+
+if exist('u_y.plt', 'file')
+    plot_matlab('DataSource', 'file', 'Filename', 'u_y.plt', ...
+                'XVariable', 2, 'YVariable', 3, ...
+                'LineColor', 'r', 'XLabel', '\it{y}', 'YLabel', '\it{u^+}','LogScale', 'x', ...
+                'OutputFilename', 'example4_file_plot.png');
+else
+    disp('跳过文件绘图示例: u_y.plt 不存在。');
+end
+```
+
+**示例 5: 从`.plt`文件绘图，多文件多曲线**
+
+```matlab
+  plot_matlab('Filename', {'timeseries_Nu1e8.plt', 'timeseries_Nu1e9.plt','timeseries_Nu1e10.plt','timeseries_Nu1e11.plt','timeseries_Nu1e12.plt'}, ...
+              'XVariable', 't', ...
+              'XLim',[-0.1,8000],...
+              'LineWidth',1,...
+              'YVariable', 'NuETAvg', ...
+              'XLabel','\it{t}',...
+              'YLabel','\it{Nu_{thermal}}',...
+              'ShowLegend', 0, ...
+              'LogScale','y',...
+              'OutputFilename', 'multi_file_comparison.png');
+```
+
+**示例 6: 简单计算（+-*/）**
+
+```matlab
+plot_matlab('Filename', 'u_y.plt', ...
+            'XVariable', 'Var1', ... % 使用第一列作为X轴
+            'YVariable', '(Var3 + Var3+Var4) ', ... % 使用计算出的平均值作为Y轴
+            'XLabel', '\it{t}', ...
+            'YLabel', 'Sum', ...
+            'LegendLabels', {'Sum'}, ... 
+            'OutputFilename', 'calculation_from_numeric_file.png');
+```
