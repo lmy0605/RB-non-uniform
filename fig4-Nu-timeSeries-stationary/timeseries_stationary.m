@@ -24,7 +24,7 @@ Rayleigh=1e12;
 Prandtl=0.71;
 
 params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA,'log.log');
-
+viscosity=sqrt(Prandtl/Rayleigh);
 %% calculation
 % Re & Nu & mean u,t
 NuVolAvg = zeros(1,fileSum);
@@ -54,10 +54,8 @@ for fileNum = fileNumStart:fileNumInterval:fileNumEnd
     [~,~,NuET]=nonUniformAverage(ETsum,params.xGrid,params.yGrid);
 
     NuVolAvg(1,t)=sqrt(Prandtl*Rayleigh)*sum(NuVol(:))/params.length0.^2+1;
-%     NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*Prandtl+1;
-%     NuETAvg(1,t)=sum(NuET(:))/params.length0.^2;
-    NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*params.viscosity0*sqrt(3)/0.1/params.length0*sqrt(Prandtl*Rayleigh)+1;  %!!!
-    NuETAvg(1,t)=sum(NuET(:))/params.length0.^2*sqrt(Prandtl*Rayleigh)*params.viscosity0*sqrt(3)/0.1/params.length0/Prandtl;  %!!!
+    NuEUAvg(1,t)=sum(NuEU(:))/params.length0.^2*0.5*viscosity*sqrt(Prandtl*Rayleigh)+1;  %!!!
+    NuETAvg(1,t)=sum(NuET(:))/params.length0.^2*sqrt(Prandtl*Rayleigh)*viscosity/Prandtl;  %!!!
 end
 
 disp(['NuVolAvg = ', num2str(mean(NuVolAvg(:)))])

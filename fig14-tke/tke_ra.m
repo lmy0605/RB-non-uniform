@@ -31,7 +31,7 @@ for i = 1:length(Ra_vals)
     end
     [production, ~] = read_tecplot_plt(inputDir);
 
-    production_res = reshape(production{5}, nx, ny);
+    production_res = reshape(production{4}, nx, ny);
     
     [~, ~, production_w] = nonUniformAverage(production_res, params.xGrid, params.yGrid);
 

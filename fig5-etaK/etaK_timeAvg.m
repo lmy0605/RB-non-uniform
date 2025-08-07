@@ -46,7 +46,7 @@ for fileNum = fileNumStart:fileNumInterval:fileNumEnd
     VAvg=VAvg+V;
 
     [UX,UY,VX,VY]=GRAD1(U,V,params.dx,params.dy);
-    EUavg=EUavg+((2.*UX).^2+(2.*VY).^2+2.*(VX+UY).^2)*viscosity*0.5;
+    EUavg=EUavg+(2.*(UX).^2+2.*(VY).^2+(VX+UY).^2)*viscosity;
 end
 
 UAvg=UAvg/fileSum;
@@ -76,10 +76,9 @@ for fileNum = fileNumStart:fileNumInterval:fileNumEnd
     VPrime=V-VAvg;
 
     [UX_prime,UY_prime,VX_prime,VY_prime]=GRAD1(UPrime,VPrime,params.dx,params.dy);
-    dissipation=dissipation+(UX_prime.^2+VY_prime.^2+0.5*(VX_prime+UY_prime).^2);
+    dissipation=dissipation+(2*UX_prime.^2+2*VY_prime.^2+(VX_prime+UY_prime).^2)*viscosity;
 end
 dissipation=dissipation/fileSum;
-dissipationAvg=viscosity*dissipation*2;
 etaKAvg=(viscosity.^3./dissipationAvg).^0.25;
 %%
 [Cx, Cy] = ndgrid(params.xGrid(1:end-1), params.yGrid(1:end-1));
