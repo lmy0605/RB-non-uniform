@@ -596,10 +596,6 @@ $$
 
 * **非均匀网格处理**: 使用自定义的有限差分格式（`GRAD1`函数）和积分权重（`nonUniformAverage`函数）来处理非均匀网格。
 
-***
-
-# fig16-TKE v.s. Ra
-
 ### `tke_ra.m`说明
 
 通过循环遍历一组不同瑞利数的模拟工况，读取每个工况对应的 `production.plt` 和 `dissipation.plt` 文件，计算全场体积平均的产生率和耗散率。
@@ -622,11 +618,7 @@ $$
 
 ***
 
-好的，没问题。这是一个为您的 MATLAB 脚本编写的简单说明文件（README）。
-
-***
-
-# fig11-Fourier
+# fig15-Fourier
 
 ### `Fourier.m`说明
 
