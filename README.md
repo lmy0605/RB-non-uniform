@@ -15,7 +15,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 ### 输入参数 (Inputs)
 
 | 参数名           | 类型        | 描述                                                               |
-|:------------- |:--------- |:---------------------------------------------------------------- |
+| :------------ | :-------- | :--------------------------------------------------------------- |
 | `nx`          | `integer` | x 方向的网格点数。                                                       |
 | `ny`          | `integer` | y 方向的网格点数。                                                       |
 | `Rayleigh`    | `double`  | 瑞利数 (Ra)，描述浮力驱动与粘性耗散和热耗散之比的关键无量纲数。                               |
@@ -26,12 +26,12 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 ### 输出参数 (Output)
 
 | 参数名      | 类型       | 描述                                               |
-|:-------- |:-------- |:------------------------------------------------ |
+| :------- | :------- | :----------------------------------------------- |
 | `params` | `struct` | 一个包含所有计算出的参数的结构体。这个结构体可以方便地传递给其他函数，用于后续的计算和数据处理。 |
 
----
+***
 
-# plot_matlab
+# plot\_matlab
 
 ### `plot_matlab.m`说明
 
@@ -44,13 +44,13 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 函数调用有两种主要形式：
 
 1. **从变量绘图**：
-   
+
    ```matlab
    plot_matlab(x_data, y_data, ...);
    ```
 
 2. **从文件绘图**：
-   
+
    ```matlab
    plot_matlab('Filename', 'path/to/file.plt', ...);
    ```
@@ -61,19 +61,19 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 ##### 3.1 数据源参数 (`DataSource` and File-related)
 
-| 参数名              | 类型                          | 默认值          | 描述                                                                                                                                                                      |
-| ---------------- | --------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`DataSource`** | `string`                    | `'variable'` | 指定数据来源。可选值为 `'variable'`（从MATLAB变量）或 `'file'`（从文件）。如果指定了 `Filename` 参数，此项会自动设为 `'file'`。                                                                                |
-| **`Filename`**   | `string` or `cell`          | `''`         | 要读取的数据文件名。可以是单个文件名（字符串），也可以是多个文件名的元胞数组（`{'file1.dat', 'file2.dat'}`）。                                                                                                   |
-| **`XVariable`**  | `numeric`, `string`, `cell` | `1`          | **仅用于文件模式**。指定用作X轴的数据。可以是：<br>- **数字索引**: `1` (第一列)。<br>- **变量名**: `'Time'`。<br>- **数学表达式**: `'sqrt(X.^2 + Y.^2)'`。<br>- **元胞数组**: `{'Time', 2}` (为多个文件分别指定)。           |
-| **`YVariable`**  | `numeric`, `string`, `cell` | *all others* | **仅用于文件模式**。指定用作Y轴的数据。可以是：<br>- **数字索引**: `2` (第二列)。<br>- **变量名**: `'Velocity'`。<br>- **数学表达式**: `'Pressure/1000'`。<br>- **元胞数组**: `{2, 'Pressure', 'U*0.5'}` (绘制多条曲线)。 |
+| 参数名              | 类型                          | 默认值          | 描述                                                                                                                                                      |
+| ---------------- | --------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`DataSource`** | `string`                    | `'variable'` | 指定数据来源。可选值为 `'variable'`（从MATLAB变量）或 `'file'`（从文件）。如果指定了 `Filename` 参数，此项会自动设为 `'file'`。                                                                |
+| **`Filename`**   | `string` or `cell`          | `''`         | 要读取的数据文件名。可以是单个文件名（字符串），也可以是多个文件名的元胞数组（`{'file1.dat', 'file2.dat'}`）。                                                                                   |
+| **`XVariable`**  | `numeric`, `string`, `cell` | `1`          | **仅用于文件模式**。指定用作X轴的数据。可以是：- **数字索引**: `1` (第一列)。- **变量名**: `'Time'`。- **数学表达式**: `'sqrt(X.^2 + Y.^2)'`。- **元胞数组**: `{'Time', 2}` (为多个文件分别指定)。           |
+| **`YVariable`**  | `numeric`, `string`, `cell` | *all others* | **仅用于文件模式**。指定用作Y轴的数据。可以是：- **数字索引**: `2` (第二列)。- **变量名**: `'Velocity'`。- **数学表达式**: `'Pressure/1000'`。- **元胞数组**: `{2, 'Pressure', 'U*0.5'}` (绘制多条曲线)。 |
 
 ##### 3.2 基础绘图数据 (`x` and `y`)
 
-| 参数名     | 类型                         | 默认值  | 描述                                                                                                                             |
-| ------- | -------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **`x`** | `vector`                   | `[]` | **仅用于变量模式**。提供X轴的数据向量。                                                                                                         |
-| **`y`** | `vector`, `matrix`, `cell` | `[]` | **仅用于变量模式**。提供Y轴的数据。可以是：<br>- **向量**: `y` (绘制一条曲线)。<br>- **矩阵**: `[y1; y2]'` (每列是一条曲线)。<br>- **元胞数组**: `{y1, y2}` (每个元胞是一条曲线)。 |
+| 参数名     | 类型                         | 默认值  | 描述                                                                                                                 |
+| ------- | -------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------ |
+| **`x`** | `vector`                   | `[]` | **仅用于变量模式**。提供X轴的数据向量。                                                                                             |
+| **`y`** | `vector`, `matrix`, `cell` | `[]` | **仅用于变量模式**。提供Y轴的数据。可以是：- **向量**: `y` (绘制一条曲线)。- **矩阵**: `[y1; y2]'` (每列是一条曲线)。- **元胞数组**: `{y1, y2}` (每个元胞是一条曲线)。 |
 
 ##### 3.3 图例与标签 (`Legend` and `Labels`)
 
@@ -101,16 +101,16 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 
 这些参数可以接受**单个值**（应用于所有曲线）或**元胞数组**（循环应用于每条曲线）。
 
-| 参数名                   | 类型                      | 默认值             | 描述                                                                         |
-| --------------------- | ----------------------- | --------------- | -------------------------------------------------------------------------- |
-| **`LineColor`**       | `string`, `RGB`, `cell` | 预设颜色            | 线的颜色。支持标准颜色名 (`'r'`), RGB三元组 (`[1 0 0]`), 或预设颜色名 `colorN` (例如 `'color1'`)。 |
-| **`LineStyle`**       | `string`, `cell`        | `'-'`           | 线的样式。例如 `'-'`, `'--'`, `':'`, `'-.'`。                                      |
-| **`LineWidth`**       | `scalar`, `cell`        | `1.5`           | 线的宽度。                                                                      |
-| **`Marker`**          | `string`, `cell`        | `'none'`        | 数据点的标记样式。例如 `'o'`, `'s'`, `'d'`, `'^'`。                                    |
-| **`MarkerSize`**      | `scalar`, `cell`        | `8`             | 标记的大小。                                                                     |
-| **`MarkerFaceColor`** | `string`, `RGB`, `cell` | `'w'`           | 标记的填充颜色。                                                                   |
-| **`MarkerEdgeColor`** | `string`, `RGB`, `cell` | *同 `LineColor`* | 标记的边缘颜色。                                                                   |
-| **`MarkerInterval`**  | `scalar`, `cell`        | `5`             | 每隔多少个数据点显示一个标记。设为`1`显示所有标记。                                                |
+| 参数名                   | 类型                      | 默认值               | 描述                                                                         |
+| --------------------- | ----------------------- | ----------------- | -------------------------------------------------------------------------- |
+| **`LineColor`**       | `string`, `RGB`, `cell` | 预设颜色              | 线的颜色。支持标准颜色名 (`'r'`), RGB三元组 (`[1 0 0]`), 或预设颜色名 `colorN` (例如 `'color1'`)。 |
+| **`LineStyle`**       | `string`, `cell`        | `'-'`             | 线的样式。例如 `'-'`, `'--'`, `':'`, `'-.'`。                                      |
+| **`LineWidth`**       | `scalar`, `cell`        | `1.5`             | 线的宽度。                                                                      |
+| **`Marker`**          | `string`, `cell`        | `'none'`          | 数据点的标记样式。例如 `'o'`, `'s'`, `'d'`, `'^'`。                                    |
+| **`MarkerSize`**      | `scalar`, `cell`        | `8`               | 标记的大小。                                                                     |
+| **`MarkerFaceColor`** | `string`, `RGB`, `cell` | `'w'`             | 标记的填充颜色。                                                                   |
+| **`MarkerEdgeColor`** | `string`, `RGB`, `cell` | *同* *`LineColor`* | 标记的边缘颜色。                                                                   |
+| **`MarkerInterval`**  | `scalar`, `cell`        | `5`               | 每隔多少个数据点显示一个标记。设为`1`显示所有标记。                                                |
 
 ##### 3.6 输出参数 (`Output`)
 
@@ -210,7 +210,7 @@ end
               'OutputFilename', 'multi_file_comparison.png');
 ```
 
-**示例 6: 简单计算（+-*/）**
+**示例 6: 简单计算（+-\*/）**
 
 ```matlab
 plot_matlab('Filename', 'u_y.plt', ...
@@ -222,7 +222,7 @@ plot_matlab('Filename', 'u_y.plt', ...
             'OutputFilename', 'calculation_from_numeric_file.png');
 ```
 
----
+***
 
 # fig1-instT-instU
 
@@ -240,31 +240,33 @@ plot_matlab('Filename', 'u_y.plt', ...
 
 #### 步骤 3: 数据导出 (`tec_file`)
 
-- **使用 `liton_ordered_tec` 工具箱**: 这是一个专门用于生成 Tecplot 文件的自定义工具箱。
+* **使用** **`liton_ordered_tec`** **工具箱**: 这是一个专门用于生成 Tecplot 文件的自定义工具箱。
 
 ### 3. 自定义函数说明
 
 #### a. `readBinaryFile(file, nx, ny)`
 
-- **功能**: 读取特定格式的二进制文件。
+* **功能**: 读取特定格式的二进制文件。
 
 #### b. `nonUniformAverage(U, xGrid, yGrid)`
 
-- **功能**: 为在非均匀网格上的场量 `U` 计算基于网格间距的加权平均值。
-- **状态**: **此函数在当前脚本中仅被定义，并未被调用**。
+* **功能**: 为在非均匀网格上的场量 `U` 计算基于网格间距的加权平均值。
+
+* **状态**: **此函数在当前脚本中仅被定义，并未被调用**。
 
 #### c. `deri_Twall(T, ...)`
 
-- **功能**: 计算底部和顶部壁面处的温度梯度。
-- **状态**: **此函数在当前脚本中也仅被定义，并未被调用**。
+* **功能**: 计算底部和顶部壁面处的温度梯度。
+
+* **状态**: **此函数在当前脚本中也仅被定义，并未被调用**。
 
 ### 4. 依赖项
 
 1. **`calculateSystemParameters.m`**: 存在一个名为 `calculateSystemParameters.m` 的函数文件，并且在 MATLAB 的搜索路径中。
-2. **`liton_ordered_tec` 工具箱**: 存在一个名为 `liton_ordered_tec` 的类或工具箱，并且在 MATLAB 的搜索路径中。
+2. **`liton_ordered_tec`** **工具箱**: 存在一个名为 `liton_ordered_tec` 的类或工具箱，并且在 MATLAB 的搜索路径中。
 3. **数据文件**: 在 `inputDir` 指定的路径下，存在格式正确的 `.bin` 二进制数据文件。
 
----
+***
 
 # fig3-timeSeries0
 
@@ -276,25 +278,25 @@ plot_matlab('Filename', 'u_y.plt', ...
 
 #### a. `readBinaryFile(file, nx, ny)`
 
-- **功能**: 读取特定格式二进制文件。
+* **功能**: 读取特定格式二进制文件。
 
 #### b. `nonUniformAverage(U, xGrid, yGrid)`
 
-- **功能**: 在非均匀网格上，计算场量 `U` 乘以单元面积（或长度）后的加权值。
+* **功能**: 在非均匀网格上，计算场量 `U` 乘以单元面积（或长度）后的加权值。
 
 #### c. `deri_Twall(T, ...)`
 
-- **功能**: 使用适用于拉伸网格的二阶精度有限差分格式，计算壁面处的温度梯度。
+* **功能**: 使用适用于拉伸网格的二阶精度有限差分格式，计算壁面处的温度梯度。
 
 #### d. `cumulativeAverage(U)`
 
-- **功能**: 计算一个向量的累积平均值。
+* **功能**: 计算一个向量的累积平均值。
 
 #### e. `cumulativePopulationVariance(U)`
 
-- **功能**: 计算向量的累积总体方差。
+* **功能**: 计算向量的累积总体方差。
 
----
+***
 
 # fig4-Nu-timeSeries-stationary
 
@@ -312,7 +314,7 @@ plot_matlab('Filename', 'u_y.plt', ...
 
 ### 2. 代码说明
 
-![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig4formula.png?raw=true )
+![1.00](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig4formula.png?raw=true)
 
 ### 3. 自定义函数
 
@@ -339,9 +341,9 @@ plot_matlab('Filename', 'u_y.plt', ...
 ### 4. 依赖项
 
 1. **`calculateSystemParameters.m`**: 必须存在此函数文件，并位于 MATLAB 搜索路径中。
-2. **`liton_ordered_tec` 工具箱**: 必须存在此工具箱，并位于 MATLAB 搜索路径中，用于生成 `.plt` 文件。
+2. **`liton_ordered_tec`** **工具箱**: 必须存在此工具箱，并位于 MATLAB 搜索路径中，用于生成 `.plt` 文件。
 
----
+***
 
 # fig5-etaK
 
@@ -354,11 +356,11 @@ plot_matlab('Filename', 'u_y.plt', ...
 
 ### 使用瞬时速度场计算 (Kinetic Energy Dissipation)
 
-这种方法计算的是**总动能的瞬时耗散率 `ε_u`**，然后对其进行时间平均得到 `<ε_u>`。
+这种方法计算的是**总动能的瞬时耗散率** **`ε_u`**，然后对其进行时间平均得到 `<ε_u>`。
 
 #### 1. 公式说明
 
-![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula1.png?raw=true)
+![1.00](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula1.png?raw=true)
 
 #### 2. 代码实现
 
@@ -379,11 +381,11 @@ $$
 
 ### 使用脉动速度场计算 (TKE Dissipation)
 
-这种方法计算的是**湍动能 (Turbulent Kinetic Energy, TKE) 的耗散率 `ε`**。
+这种方法计算的是**湍动能 (Turbulent Kinetic Energy, TKE) 的耗散率** **`ε`**。
 
 #### 1. 公式说明
 
-![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula2.png?raw=true)
+![1.00](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig5formula2.png?raw=true)
 
 #### 2. 代码实现
 
@@ -392,11 +394,14 @@ $$
 1. `UPrime=U-UAvg; VPrime=V-VAvg;` 计算了脉动速度。
 2. `[UX_prime,UY_prime,VX_prime,VY_prime]=GRAD1(UPrime,VPrime,params.dx,params.dy);` 计算了脉动速度的梯度。
 3. `dissipation=dissipation+(UX_prime.^2+VY_prime.^2+0.5*(VX_prime+UY_prime).^2);`
-   - 这一步计算了括号内的项 `(...)`，并进行了累加。
+
+   * 这一步计算了括号内的项 `(...)`，并进行了累加。
 4. `dissipation=dissipation/fileSum;`
-   - 这一步完成了时间平均 `<...>`。
+
+   * 这一步完成了时间平均 `<...>`。
 5. `dissipationAvg=viscosity*dissipation*2;`
-   - 最后乘以 `2ν`。
+
+   * 最后乘以 `2ν`。
 
 组合起来，`dissipationAvg` 计算：
 
@@ -437,23 +442,23 @@ $$
 $$
 
 * **标准一：最长边**
-  
+
   $$
   \Delta_1(i,j) = \max(\Delta x_i, \Delta y_j)
   $$
-  
+
   ```matlab
   grid_resolution = max(deltaX, deltaY); 
   ```
 
 * **标准二：等效面积**
-  
+
   $$
   \Delta_2(i,j) = \sqrt{\Delta x_i \cdot \Delta y_j}
   $$
-  
+
   此处的 `deltaxy` 是由函数直接返回的面积矩阵 `node_area_weights`。
-  
+
   ```matlab
   grid_resolution2 = sqrt(deltaxy);
   ```
@@ -482,7 +487,7 @@ $$
 aspect_ratio = max(deltaX, deltaY) ./ min(deltaX, deltaY);
 ```
 
----
+***
 
 # fig6-Rascaling
 
@@ -498,9 +503,9 @@ $$
 
 拟合结果如下：
 
-![](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig6result.png?raw=true)
+![1.00](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig6result.png?raw=true)
 
----
+***
 
 # fig8-PDF
 
@@ -510,16 +515,23 @@ $$
 
 主要功能包括：
 
-- **数据加载**: 从指定的 `.plt` 文件中读取多种Nusselt数（`NuWallAvg`, `NuVolAvg`, `NuEUAvg`, `NuETAvg`）的时间序列。
-- **基本统计**: 计算并记录每个Nusselt数时间序列的均值和标准差。
-- **概率密度函数 (PDF) 计算**: 对标准化后的数据计算经验PDF（Empirical PDF）。
-- **分布拟合**: 将每个Nusselt数脉动数据分别与高斯（Gaussian）分布和广义极值（GEV）分布进行拟合。
-- **模型比较**: 通过可视化的PDF曲线对比和量化的信息准则（AIC/BIC），判断哪种分布能更好地描述数据。
-- **结果输出**:
-  - 将所有统计和分析结果保存到一个详细的日志文件 (`.txt`)。
-  - 将PDF数据和拟合曲线数据导出为Tecplot格式的 `.plt` 文件。
+* **数据加载**: 从指定的 `.plt` 文件中读取多种Nusselt数（`NuWallAvg`, `NuVolAvg`, `NuEUAvg`, `NuETAvg`）的时间序列。
 
----
+* **基本统计**: 计算并记录每个Nusselt数时间序列的均值和标准差。
+
+* **概率密度函数 (PDF) 计算**: 对标准化后的数据计算经验PDF（Empirical PDF）。
+
+* **分布拟合**: 将每个Nusselt数脉动数据分别与高斯（Gaussian）分布和广义极值（GEV）分布进行拟合。
+
+* **模型比较**: 通过可视化的PDF曲线对比和量化的信息准则（AIC/BIC），判断哪种分布能更好地描述数据。
+
+* **结果输出**:
+
+  * 将所有统计和分析结果保存到一个详细的日志文件 (`.txt`)。
+
+  * 将PDF数据和拟合曲线数据导出为Tecplot格式的 `.plt` 文件。
+
+***
 
 # fig12-vor
 
@@ -560,9 +572,9 @@ $$
 
 ###### 输出结果：
 
-使用 liton_ordered_tec 类将存储了所有 LSC 中心坐标的数组写入 lsc_trajectory.plt 文件。
+使用 liton\_ordered\_tec 类将存储了所有 LSC 中心坐标的数组写入 lsc\_trajectory.plt 文件。
 
----
+***
 
 # fig14-tke
 
@@ -570,15 +582,21 @@ $$
 
 读取一系列瞬时流场文件（`.bin`），计算时间平均统计量，最终计算出TKE产生项和耗散项的空间分布保存为Tecplot可读的 `.plt` 文件。
 
-- **TKE产生项计算**:
-  - **剪切产生项 (Shear Production)**: `-<u'_i u'_j> * (∂<U_i>/∂x_j)`
-  - **浮力产生项 (Buoyancy Production)**: `<v'T'>` (假设重力在y方向)
-- **TKE耗散项计算**:
-  - **伪耗散 (Pseudo-dissipation)**: `ν * <(∂u'_i/∂x_j) * (∂u'_i/∂x_j)>`
-  - **真耗散 (True dissipation)**: `2 * ν * <s'_{ij}s'_{ij}>`，其中 `s'_{ij}` 是脉动应变率张量。
-- **非均匀网格处理**: 使用自定义的有限差分格式（`GRAD1`函数）和积分权重（`nonUniformAverage`函数）来处理非均匀网格。
+* **TKE产生项计算**:
 
----
+  * **剪切产生项 (Shear Production)**: `-<u'_i u'_j> * (∂<U_i>/∂x_j)`
+
+  * **浮力产生项 (Buoyancy Production)**: `<v'T'>` (假设重力在y方向)
+
+* **TKE耗散项计算**:
+
+  * **伪耗散 (Pseudo-dissipation)**: `ν * <(∂u'_i/∂x_j) * (∂u'_i/∂x_j)>`
+
+  * **真耗散 (True dissipation)**: `2 * ν * <s'_{ij}s'_{ij}>`，其中 `s'_{ij}` 是脉动应变率张量。
+
+* **非均匀网格处理**: 使用自定义的有限差分格式（`GRAD1`函数）和积分权重（`nonUniformAverage`函数）来处理非均匀网格。
+
+***
 
 # fig16-TKE v.s. Ra
 
@@ -586,44 +604,72 @@ $$
 
 通过循环遍历一组不同瑞利数的模拟工况，读取每个工况对应的 `production.plt` 和 `dissipation.plt` 文件，计算全场体积平均的产生率和耗散率。
 
-- **数据加载**: 使用 `read_tecplot_plt` 函数从每个工况的目录中读取 `production.plt` 和 `dissipation.plt` 文件。
-- **体积平均计算**:
-  - 利用 `nonUniformAverage` 辅助函数计算非均匀网格上的积分。
-  - 通过将积分结果除以计算域总面积（`params.length0^2`），得到体积平均的TKE产生率和耗散率。
-- **可视化**:
-  - 调用 `plot_matlab` 函数，分别生成两张PNG图。
-  - **图1 (`p_ra.png`)**: TKE产生率 vs. 瑞利数。
-  - **图2 (`d_ra.png`)**: TKE耗散率 vs. 瑞利数。
+* **数据加载**: 使用 `read_tecplot_plt` 函数从每个工况的目录中读取 `production.plt` 和 `dissipation.plt` 文件。
 
----
+* **体积平均计算**:
+
+  * 利用 `nonUniformAverage` 辅助函数计算非均匀网格上的积分。
+
+  * 通过将积分结果除以计算域总面积（`params.length0^2`），得到体积平均的TKE产生率和耗散率。
+
+* **可视化**:
+
+  * 调用 `plot_matlab` 函数，分别生成两张PNG图。
+
+  * **图1 (`p_ra.png`)**: TKE产生率 vs. 瑞利数。
+
+  * **图2 (`d_ra.png`)**: TKE耗散率 vs. 瑞利数。
+
+***
+
 好的，没问题。这是一个为您的 MATLAB 脚本编写的简单说明文件（README）。
 
----
+***
+
 # fig11-Fourier
+
 ### `Fourier.m`说明
 
-*   **数据读取**: 自动批量读取指定文件夹内的二进制速度场文件 (`.bin`)。
-*   **傅里叶分解**: 生成二维正弦/余弦傅里叶基函数，并将每个时间点的速度场投影到这些基函数上，以获得傅里叶系数 (`Ax`, `Ay`)。
-*   **能量计算**: 基于傅里叶系数，计算每个模态的瞬时能量、总能量、能量百分比，以及能量的时间标准差（`E_rms`）。
-*   **统计分析**: 计算各模态能量的时间平均值、稳定性参数 (`S11`) 等物理量。
-*   **数据导出**: 存为ASCII 文本文件 (`.dat`)。
-*   **可视化**: 可选择生成一张图，各个傅里叶模态的能量百分比随时间的变化。
+* **数据读取**: 读取指定文件夹内的二进制速度场文件 (`.bin`)。
+
+* **傅里叶分解**: 生成二维正弦/余弦傅里叶基函数，并将每个时间点的速度场投影到这些基函数上，以获得傅里叶系数 (`Ax`, `Ay`)。
+
+* **能量计算**: 基于傅里叶系数，计算每个模态的瞬时能量、总能量、能量百分比，以及能量的时间标准差（`E_rms`）。
+
+* **统计分析**: 计算各模态能量的时间平均值、稳定性参数 (`S11`) 等物理量。
+
+* **数据导出**: 存为ASCII 文本文件 (`.dat`)。
+
+* **可视化**: 可选择生成一张图，各个傅里叶模态的能量百分比随时间的变化。
 
 ### 输出文件说明
 
-*   `Fourier_coeff_Ax_[modeNum].dat`: 第 `modeNum` 个模态的 `Ax` 系数随时间变化的数据。
-*   `Fourier_coeff_Ay_[modeNum].dat`: 第 `modeNum` 个模态的 `Ay` 系数随时间变化的数据。
-*   `energyPercentage_[modeNum].dat`: 第 `modeNum` 个模态的能量百分比随时间变化的数据。
-*   **`Fourier_result_summary.dat`**:这是一个矩阵，每行代表一个模态，每列代表一个统计量：
-    *   **列 1**: `mean(abs(Ax))`
-    *   **列 2**: `mean(abs(Ay))`
-    *   **列 3**: `<E^(m,n)(t)>` (模态能量的时间平均值)
-    *   **列 4**: `<E^(m,n)(t) / E_total(t)>` (能量百分比的时间平均值)
-    *   **列 5**: `<E^(m,n)(t)> / <E_total(t)> * 100`
-    *   **列 6**: `S11 = <E^(m,n)> / E_rms^(m,n)` (稳定性参数)
-    *   **列 7**: `E_rms^(m,n) / <E_total>`
-*   `energyPercentage.png` (如果 `exportFigure=1`): 显示所有模态能量百分比随时间变化的图表。
+* `Fourier_coeff_Ax_[modeNum].dat`: 第 `modeNum` 个模态的 `Ax` 系数随时间变化的数据。
 
-### `PLOT.m`说明
+* `Fourier_coeff_Ay_[modeNum].dat`: 第 `modeNum` 个模态的 `Ay` 系数随时间变化的数据。
+
+* `energyPercentage_[modeNum].dat`: 第 `modeNum` 个模态的能量百分比随时间变化的数据。
+
+* **`Fourier_result_summary.dat`**:这是一个矩阵，每行代表一个模态，每列代表一个统计量：
+
+  * **列 1**: `mean(abs(Ax))`
+
+  * **列 2**: `mean(abs(Ay))`
+
+  * **列 3**: `<E^(m,n)(t)>` (模态能量的时间平均值)
+
+  * **列 4**: `<E^(m,n)(t) / E_total(t)>` (能量百分比的时间平均值)
+
+  * **列 5**: `<E^(m,n)(t)> / <E_total(t)> * 100`
+
+  * **列 6**: `S11 = <E^(m,n)> / E_rms^(m,n)` (稳定性参数)
+
+  * **列 7**: `E_rms^(m,n) / <E_total>`
+
+* `energyPercentage.png` (如果 `exportFigure=1`): 显示所有模态能量百分比随时间变化的图表。
+
+### `PLOT_Fourier.m`说明
+
 输出各个傅里叶模态的能量百分比随时间的变化图
+
 输出result列4，5，6，7图
