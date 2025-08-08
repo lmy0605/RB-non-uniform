@@ -1,7 +1,7 @@
 clear; close all; clc;
 
 %% basic settings
-fileNumStart=1501; % This is not used in a loop, but kept for context
+fileNumStart=2001; % This is not used in a loop, but kept for context
 fileNumEnd=10000;
 fileNumInterval=1;
 inputDir = '/nfsdata4/AXu/RB-non-uniform/Ra1e9-mesh513/binFile-1-10000/'; 

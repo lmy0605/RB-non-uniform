@@ -1,7 +1,7 @@
 clear; close all; clc;
 
 %% basic settings
-fileNumStart=1501; % This is not used in a loop, but kept for context
+fileNumStart=2001; % This is not used in a loop, but kept for context
 fileNumEnd=10000;
 fileNumInterval=1;
 fileSum=fileNumEnd-fileNumStart+1;
@@ -171,7 +171,10 @@ true_dissipation=sqrt(Prandtl/Rayleigh)*(true22+true12+true11)*2;
 
 [~,~,pavg]=nonUniformAverage(Pruduction,params.xGrid,params.yGrid);
 pavg=sum(pavg(:))/params.length0.^2;
+[~,~,tdavg]=nonUniformAverage(true_dissipation,params.xGrid,params.yGrid);
+tdavg=sum(tdavg(:))/params.length0.^2;
 disp(pavg);
+disp(tdavg);
 %%
 [Cx, Cy] = ndgrid(params.xGrid(1:end-1), params.yGrid(1:end-1));
 
@@ -191,8 +194,7 @@ tec_file.Zones = liton_ordered_tec.TEC_ZONE;
 tec_file.Zones.Data = {Cx,Cy,pseudo_dissipation,true_dissipation};
 tec_file = tec_file.write_plt();
 
-%---------------------------------------------
-% read explanation here: https://zhuanlan.zhihu.com/p/62792201
+
 %%
 function [U, V ,T, rho] = readBinaryFile(file, nx, ny)
 fid = fopen(file,'r');

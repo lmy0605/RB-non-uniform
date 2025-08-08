@@ -1,12 +1,19 @@
 clear; close all; clc;
 
 %% basic settings
-fileNumStart=1501;
+fileNumStart=2001;
 fileNumEnd=10000;
 fileNumInterval=1;
 fileSum=fileNumEnd-fileNumStart+1;
 inputDir = '/nfsdata4/AXu/RB-non-uniform/Ra1e9-mesh513/binFile-1-10000/'; % please rename data folder as "binFile"
 namebase = 'buoyancyCavity-';
+
+% --- Check if input directory exists before proceeding ---
+disp('Verifying input directory...');
+if ~isfolder(inputDir)
+    error('Input directory not found: %s', inputDir);
+end
+disp(['Input directory found: ', inputDir]);
 
 nx=513;
 ny=nx;
@@ -20,7 +27,7 @@ params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA,'log.log');
 [Cx, Cy] = ndgrid(params.xGrid(1:end-1), params.yGrid(1:end-1));
 
 %inst fileNum=501
-fileNum=fileNumStart+ceil(fileSum/2);
+fileNum=fileNumEnd;
 [U,V,T,rho] = readBinaryFile(fullfile(inputDir, [namebase, num2str(fileNum),'.bin']),nx,ny);
 U = reshape(U,nx,ny);
 V = reshape(V,nx,ny);

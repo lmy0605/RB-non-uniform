@@ -1,62 +1,13 @@
 clear; close all; clc;
 
-%% --- Configuration for Supplementary Data ---
-fileNumStart = 1001;
-fileNumEnd = 10000;
-inputDir = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig3-timeseries-0\1e8\timeseries_ReNu.plt';
-inputDir2 = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig4_timeseries-stationary\1e8\timeseries_Nu.plt';
-
-[Revol_8, ~] = read_tecplot_plt(inputDir);
-[Nu_8, ~] = read_tecplot_plt(inputDir2);
-Re_8=mean(Revol_8{2}(fileNumStart:fileNumEnd));
-Nuwall_8=mean(Revol_8{3}(fileNumStart:fileNumEnd));
-%% --- Configuration for Supplementary Data ---
-fileNumStart = 1501;
-fileNumEnd = 10000;
-inputDir = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig3-timeseries-0\1e9\timeseries_ReNu.plt';
-inputDir2 = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig4_timeseries-stationary\1e9\timeseries_Nu.plt';
-
-[Revol_9, ~] = read_tecplot_plt(inputDir);
-[Nu_9, ~] = read_tecplot_plt(inputDir2);
-Re_9=mean(Revol_9{2}(fileNumStart:fileNumEnd));
-Nuwall_9=mean(Revol_9{3}(fileNumStart:fileNumEnd));
-%% --- Configuration for Supplementary Data ---
-fileNumStart = 2001;
-fileNumEnd = 10000;
-inputDir = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig3-timeseries-0\1e10\timeseries_ReNu.plt';
-inputDir2 = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig4_timeseries-stationary\1e10\timeseries_Nu.plt';
-
-[Revol_10, ~] = read_tecplot_plt(inputDir);
-[Nu_10, ~] = read_tecplot_plt(inputDir2);
-Re_10=mean(Revol_10{2}(fileNumStart:fileNumEnd));
-Nuwall_10=mean(Revol_10{3}(fileNumStart:fileNumEnd));
-%% --- Configuration for Supplementary Data ---
-fileNumStart = 2001;
-fileNumEnd = 5194;
-inputDir = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig3-timeseries-0\1e11\timeseries_ReNu_update.plt';
-inputDir2 = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig4_timeseries-stationary\1e11\timeseries_Nu_updated.plt.plt';
-
-[Revol_11, ~] = read_tecplot_plt(inputDir);
-[Nu_11, ~] = read_tecplot_plt(inputDir2);
-Re_11=mean(Revol_11{2}(fileNumStart:fileNumEnd));
-Nuwall_11=mean(Revol_11{3}(fileNumStart:fileNumEnd));
-%% --- Configuration for Supplementary Data ---
-fileNumStart = 2086;
-fileNumEnd = 2609;
-inputDir = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig3-timeseries-0\1e12\timeseries_ReNu_update.plt';
-inputDir2 = 'C:\Users\user\OneDrive\Desktop\01-RB-0612\fig4_timeseries-stationary\1e12\timeseries_Nu_updated.plt.plt';
-
-[Revol_12, ~] = read_tecplot_plt(inputDir);
-[Nu_12, ~] = read_tecplot_plt(inputDir2);
-Re_12=mean(Revol_12{2}(fileNumStart:fileNumEnd));
-Nuwall_12=mean(Revol_12{3}(fileNumStart:fileNumEnd));
 %%
+Nu=load('Nu_Ra.dat');
 Ra=[1e8,1e9,1e10,1e11,1e12];
-Re=[Re_8,Re_9,Re_10,Re_11,Re_12];
-Nuwall=[Nuwall_8,Nuwall_9,Nuwall_10,Nuwall_11,Nuwall_12];
-Nuvol=[25.2108,53.273,94.308,186.1131,394.1462];
-Nueu=[24.7972,51.7653,87.0589,163.0573,247.715];
-Nuet=[25.2346,52.8451,93.2809,181.778,369.672];
+Re=Nu(5,:);
+Nuwall=Nu(1,:);
+Nuvol=Nu(2,:);
+Nueu=Nu(3,:);
+Nuet=Nu(4,:);
 
 % %%
 % Re_t8=Revol_8{2}(1001:10000)./Ra(1)^0.62;

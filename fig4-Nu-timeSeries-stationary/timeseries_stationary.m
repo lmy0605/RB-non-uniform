@@ -1,26 +1,17 @@
 clear; close all; clc;
 
-
 %% basic settings
-fileNumStart=2086;
-fileNumEnd=2502;
+fileNumStart=6001;
+fileNumEnd=11001;
 fileNumInterval=1;
 fileSum=fileNumEnd-fileNumStart+1;
-inputDir = '/nfsdata2/AXu/RB-non-uniform/Ra1e12-mesh4097/binFile-1971-2502/'; % please rename data folder as "binFile"
+inputDir = '/nfsdata4/AXu/RB-non-uniform/Ra1e11-mesh2049/binFile-5840-11001/';
 namebase = 'buoyancyCavity-';
 
-
-% --- Check if input directory exists before proceeding ---
-disp('Verifying input directory...');
-if ~isfolder(inputDir)
-    error('Input directory not found: %s', inputDir);
-end
-disp(['Input directory found: ', inputDir]);
-
-nx=4097;
+nx=2049;
 ny=nx;
-constA=3.1;
-Rayleigh=1e12;
+constA=2.9;
+Rayleigh=1e11;
 Prandtl=0.71;
 
 params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA,'log.log');

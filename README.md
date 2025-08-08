@@ -234,13 +234,15 @@ plot_matlab('Filename', 'u_y.plt', ...
 
 #### 步骤 1: 参数配置 (`basic settings`)
 
+在这一步中检查inputDir是否存在。
+
 #### 步骤 2: 数据读取与处理 (`calculation`)
 
 调用自定义的 `readBinaryFile` 函数。将速度分量 `U` 和 `V` 除以 `params.velocityUnit`，将其从计算单位转换为无量纲单位。
 
 #### 步骤 3: 数据导出 (`tec_file`)
 
-* **使用** **`liton_ordered_tec`** **工具箱**: 这是一个专门用于生成 Tecplot 文件的自定义工具箱。
+**使用** **`liton_ordered_tec`** **工具箱**: 这是一个专门用于生成 Tecplot 文件的自定义工具箱。
 
 ### 3. 自定义函数说明
 
@@ -312,11 +314,7 @@ plot_matlab('Filename', 'u_y.plt', ...
 
 脚本生成Nu值的瞬时时间序列（自统计稳态后）及其累积统计特性。
 
-### 2. 代码说明
-
-![1.00](https://github.com/lmy0605/RB-non-uniform/blob/master/screenshots/fig4formula.png?raw=true)
-
-### 3. 自定义函数
+### 2. 自定义函数
 
 #### a. `readBinaryFile(file, nx, ny)`
 
@@ -337,11 +335,6 @@ plot_matlab('Filename', 'u_y.plt', ...
 #### e. `GRAD1(U,V,dx,dy)`
 
 在非均匀网格上，使用二阶精度的中心、向前和向后差分格式计算速度场和温度场的一阶梯度。
-
-### 4. 依赖项
-
-1. **`calculateSystemParameters.m`**: 必须存在此函数文件，并位于 MATLAB 搜索路径中。
-2. **`liton_ordered_tec`** **工具箱**: 必须存在此工具箱，并位于 MATLAB 搜索路径中，用于生成 `.plt` 文件。
 
 ***
 
@@ -421,13 +414,9 @@ $$
 
 代码是 `etaKAvg=(viscosity.^3./dissipationAvg).^0.25;`
 
-### `grid_resolution_analysis.m` 说明
-
-### 1. 功能
+#### 3. grid\_resolution\_analysis
 
 验证网格尺度小于Kolmogorov尺度。
-
-### 2. 分辨率指标计算
 
 脚本计算了两种分辨率指标 (`grid_resolution` 和 `grid_resolution2`)。
 
@@ -493,7 +482,7 @@ aspect_ratio = max(deltaX, deltaY) ./ min(deltaX, deltaY);
 
 ### `ReNu_Ra.m`**说明**
 
-计算全局Nu数和Re数随Ra数变化的**标度率**。
+读取全局Nu数和Re数（Nu\_Ra.dat），计算随Ra数变化的**标度率**。
 
 对`Re`、`Nu_wall`（壁面Nu）、`Nu_vol`（体积Nu）、`Nu_eu`（动能耗散Nu）、`Nu_et`（热耗散Nu）与`Ra`数的关系，进行**幂律拟合（Power-Law Fitting）**，确定标度律关系式：
 
@@ -598,15 +587,7 @@ $$
 
 ### `tke_ra.m`说明
 
-通过循环遍历一组不同瑞利数的模拟工况，读取每个工况对应的 `production.plt` 和 `dissipation.plt` 文件，计算全场体积平均的产生率和耗散率。
-
-* **数据加载**: 使用 `read_tecplot_plt` 函数从每个工况的目录中读取 `production.plt` 和 `dissipation.plt` 文件。
-
-* **体积平均计算**:
-
-  * 利用 `nonUniformAverage` 辅助函数计算非均匀网格上的积分。
-
-  * 通过将积分结果除以计算域总面积（`params.length0^2`），得到体积平均的TKE产生率和耗散率。
+读取全场体积平均的产生率和耗散率（tke\_ra.dat）。
 
 * **可视化**:
 
@@ -622,9 +603,17 @@ $$
 
 ### `Fourier.m`说明
 
+#### 1. 功能
+
 * **数据读取**: 读取指定文件夹内的二进制速度场文件 (`.bin`)。
 
 * **傅里叶分解**: 生成二维正弦/余弦傅里叶基函数，并将每个时间点的速度场投影到这些基函数上，以获得傅里叶系数 (`Ax`, `Ay`)。
+
+  对于非均匀网格，有两处改动：
+
+  ① 基函数在非均匀的网格点上取值；
+
+  ② 内积需要乘以权重（网格点面积），具体公式推导见Fourier\_nonuniform.pdf
 
 * **能量计算**: 基于傅里叶系数，计算每个模态的瞬时能量、总能量、能量百分比，以及能量的时间标准差（`E_rms`）。
 
@@ -634,7 +623,7 @@ $$
 
 * **可视化**: 可选择生成一张图，各个傅里叶模态的能量百分比随时间的变化。
 
-### 输出文件说明
+#### 2. 输出文件说明
 
 * `Fourier_coeff_Ax_[modeNum].dat`: 第 `modeNum` 个模态的 `Ax` 系数随时间变化的数据。
 

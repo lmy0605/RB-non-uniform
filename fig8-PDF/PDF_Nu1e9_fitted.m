@@ -10,6 +10,13 @@ inputDir_Nu = strcat('C:\Users\user\OneDrive\Desktop\01-RB-0612\fig3-timeseries-
 inputDir_Nurest =strcat('C:\Users\user\OneDrive\Desktop\01-RB-0612\fig4_timeseries-stationary\',casename,'\timeseries_Nu.plt');
 namebase = 'buoyancyCavity-';
 
+% --- Check if input directory exists before proceeding ---
+disp('Verifying input directory...');
+if ~isfolder(inputDir)
+    error('Input directory not found: %s', inputDir);
+end
+disp(['Input directory found: ', inputDir]);
+
 nx=513;
 ny=nx;
 constA=2.1;

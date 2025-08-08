@@ -1,12 +1,13 @@
 clear; close all; clc;
 
 %% basic settings
-fileNumStart=2086;
-fileNumEnd=2609;
+fileNumStart=2001;
+fileNumEnd=10000;
 fileNumInterval=1;
 fileSum=fileNumEnd-fileNumStart+1;
-inputDir = '/nfsdata2/AXu/RB-non-uniform/Ra1e12-mesh4097/binFile-1971-2609/'; % please rename data folder as "binFile"
+inputDir = '/nfsdata4/AXu/RB-non-uniform/Ra1e9-mesh513/binFile-1-10000/';
 namebase = 'buoyancyCavity-';
+casename='1e9';
 
 % --- Check if input directory exists before proceeding ---
 disp('Verifying input directory...');
@@ -15,10 +16,10 @@ if ~isfolder(inputDir)
 end
 disp(['Input directory found: ', inputDir]);
 
-nx=4097;
+nx=513;
 ny=nx;
-constA=3.1;
-Rayleigh=1e12;
+constA=2.1;
+Rayleigh=1e9;
 Prandtl=0.71;
 
 params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA,'log.log');
@@ -79,7 +80,20 @@ for fileNum = fileNumStart:fileNumInterval:fileNumEnd
     dissipation=dissipation+(2*UX_prime.^2+2*VY_prime.^2+(VX_prime+UY_prime).^2)*viscosity;
 end
 dissipation=dissipation/fileSum;
-etaKAvg=(viscosity.^3./dissipationAvg).^0.25;
+etaKAvg=(viscosity.^3./dissipation).^0.25;
+
+%%
+[deltax,deltay,deltaxy]=calculate_node_area_weights(params.xGrid,params.yGrid);
+[deltaX,deltaY]=ndgrid(deltax,deltay);
+
+grid_resolution = max(deltaX, deltaY); 
+grid_resolution2 = sqrt(deltaxy);
+
+resolution_ratio_etaK = grid_resolution ./ etaKAvg;
+resolution_ratio_etaU = grid_resolution ./ etaUAvg;
+resolution_ratio_etaK2 = grid_resolution2 ./ etaKAvg;
+resolution_ratio_etaU2 = grid_resolution2 ./ etaUAvg;
+aspect_ratio=max(deltaX, deltaY)./min(deltaX, deltaY);
 %%
 [Cx, Cy] = ndgrid(params.xGrid(1:end-1), params.yGrid(1:end-1));
 
@@ -98,6 +112,33 @@ tec_file.Zones = liton_ordered_tec.TEC_ZONE;
 tec_file.Zones.Data = {Cx,Cy,etaKAvg};
 tec_file = tec_file.write_plt();
 
+tec_file = liton_ordered_tec.TEC_FILE;
+tec_file.FileName = strcat('resolution_ratio_etaK_',casename);
+tec_file.Variables = {'x','y','resolution_ratio_etaK','aspect_ratio'};
+tec_file.Zones = liton_ordered_tec.TEC_ZONE;
+tec_file.Zones.Data = {Cx,Cy,resolution_ratio_etaK,aspect_ratio};
+tec_file = tec_file.write_plt();
+
+tec_file = liton_ordered_tec.TEC_FILE;
+tec_file.FileName = strcat('resolution_ratio_etaU_',casename);
+tec_file.Variables = {'x','y','resolution_ratio_etaU','aspect_ratio'};
+tec_file.Zones = liton_ordered_tec.TEC_ZONE;
+tec_file.Zones.Data = {Cx,Cy,resolution_ratio_etaU,aspect_ratio};
+tec_file = tec_file.write_plt();
+
+tec_file = liton_ordered_tec.TEC_FILE;
+tec_file.FileName = strcat('2resolution_ratio_etaK_',casename);
+tec_file.Variables = {'x','y','resolution_ratio_etaK','aspect_ratio'};
+tec_file.Zones = liton_ordered_tec.TEC_ZONE;
+tec_file.Zones.Data = {Cx,Cy,resolution_ratio_etaK2,aspect_ratio};
+tec_file = tec_file.write_plt();
+
+tec_file = liton_ordered_tec.TEC_FILE;
+tec_file.FileName = strcat('2resolution_ratio_etaU_',casename);
+tec_file.Variables = {'x','y','resolution_ratio_etaU','aspect_ratio'};
+tec_file.Zones = liton_ordered_tec.TEC_ZONE;
+tec_file.Zones.Data = {Cx,Cy,resolution_ratio_etaU2,aspect_ratio};
+tec_file = tec_file.write_plt();
 %%
 function [U, V ,T, rho] = readBinaryFile(file, nx, ny)
 fid = fopen(file,'r');
@@ -215,4 +256,46 @@ function [GRAD_UX,GRAD_UY,GRAD_VX,GRAD_VY]=GRAD1(U,V,dx,dy)
             end
         end
     end
+end
+function [dx_contrib,dy_contrib,node_area_weights] = calculate_node_area_weights(x_node_coords, y_node_coords)
+    % x_node_coords: 1D array of x-coordinates of nodes (length nx)
+    % y_node_coords: 1D array of y-coordinates of nodes (length ny)
+    % Returns: An nx x ny matrix of area weights for each node.
+
+    nx_nodes = length(x_node_coords)-1;
+    ny_nodes = length(y_node_coords)-1;
+
+    dx_contrib = zeros(nx_nodes, 1); % Column vector for dx contributions
+    if nx_nodes == 1
+        warning('calculate_node_area_weights: Only one X node. Assuming unit contribution or check logic.');
+        dx_contrib(1) = 1; % Or handle as an error, or require domain width
+    else
+        % Contribution from the first node
+        dx_contrib(1) = (x_node_coords(2) - 0) / 2;
+        % Contribution from internal nodes
+        for i = 2:(nx_nodes)
+            dx_contrib(i) = (x_node_coords(i+1) - x_node_coords(i-1)) / 2;
+        end
+    end
+
+    dy_contrib = zeros(ny_nodes, 1); % Column vector for dy contributions
+    if ny_nodes == 1
+        warning('calculate_node_area_weights: Only one Y node. Assuming unit contribution or check logic.');
+        dy_contrib(1) = 1; % Or handle as an error, or require domain height
+    else
+        dy_contrib(1) = (y_node_coords(2) - 0) / 2;
+        for i = 2:(ny_nodes)
+            dy_contrib(i) = (y_node_coords(i+1) - y_node_coords(i-1)) / 2;
+        end
+    end
+    
+    % Ensure no negative contributions (e.g., if grid coords are not monotonic)
+    if any(dx_contrib < 0)
+        error('Negative dx_contrib calculated. Check x_node_coords order and values.');
+    end
+    if any(dy_contrib < 0)
+        error('Negative dy_contrib calculated. Check y_node_coords order and values.');
+    end
+
+    node_area_weights = dx_contrib * dy_contrib'; % Results in (nx x ny) matrix
 end
