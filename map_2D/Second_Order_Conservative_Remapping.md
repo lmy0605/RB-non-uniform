@@ -11,7 +11,9 @@ $$
 其中：
 
 * $Q_{ii,jj}$ 是源单元 `(ii, jj)` 中心的物理量值（例如 `u_src(ii,jj)`）。
+
 * $(x_{ii}, y_{jj})$ 是该源单元的中心坐标。
+
 * $\frac{\partial Q}{\partial x}$ 和 $\frac{\partial Q}{\partial y}$ 是在源单元中心计算出的梯度（即代码中的 `grad_x` 和 `grad_y`）。
 
 #### 2. 守恒积分 (Conservative Integration)
@@ -24,13 +26,13 @@ $$
 \text{Contribution} = \iint_{A_{\text{overlap}}} Q(x,y) \,dA
 $$
 
-对于一个线性函数在一个矩形区域上的积分，有一个非常优雅的简化：积分值等于**该区域几何中心点的值**乘以**该区域的面积**。
+对于一个线性函数在一个矩形区域上的积分，有简化：积分值等于**该区域几何中心点的值**乘以**该区域的面积**。
 
 $$
 \iint_{A_{\text{overlap}}} Q(x,y) \,dA = Q(x_c, y_c) \cdot A_{\text{overlap}}
 $$
 
-其中 $(x_c, y_c)$ 是重叠区域 $A_{\text{overlap}}$ 的几何中心坐标。这正是您代码中 `u_recon * overlap_area` 这行计算的数学基础。
+其中 $(x_c, y_c)$ 是重叠区域 $A_{\text{overlap}}$ 的几何中心坐标。代码中 `u_recon * overlap_area` 这行计算的数学基础。
 
 #### 4. 求和与归一化 (Summation & Normalization)
 
