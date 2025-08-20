@@ -160,7 +160,7 @@ function [area, xc, yc] = calculate_overlap_properties(b_src_x, b_src_y, b_tgt_x
 end
 
 function idx = bounded_bisect(arr, val)
-    % 有界的二分搜索，用于快速查找一个值所在的区间索引
+    % 二分搜索，快速查找一个值所在的区间索引
     n = length(arr);
 
     if val <= arr(1)

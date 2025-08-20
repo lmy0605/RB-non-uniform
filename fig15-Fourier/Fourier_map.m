@@ -30,11 +30,11 @@ outputModeIllustration = 0;
 
 exportFigure=1;
 %%
-nx_old=257;
+nx_old=nx;
 ny_old=nx_old;
 [x_old, y_old] = generate_grid(nx_old, ny_old, 0, constA);
 
-nx_new=257;
+nx_new=nx;
 ny_new=nx_new;
 [x_new, y_new] = generate_grid(nx_new, ny_new, 1,1);
 %%
