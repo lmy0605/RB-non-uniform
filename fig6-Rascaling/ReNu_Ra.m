@@ -9,25 +9,6 @@ Nuvol=Nu(2,:);
 Nueu=Nu(3,:);
 Nuet=Nu(4,:);
 
-% %%
-% Re_t8=Revol_8{2}(1001:10000)./Ra(1)^0.62;
-% Re_t9=Revol_9{2}(1501:10000)./Ra(2)^0.62;
-% Re_t10=Revol_10{2}(2001:10000)./Ra(3)^0.62;
-% Re_t11=Revol_11{2}(2001:5194)./Ra(4)^0.62;
-% Re_t12=Revol_12{2}(2086:2609)./Ra(5)^0.62;
-% 
-% Nuwall_t8=Revol_8{3}(1001:10000)./Ra(1)^0.3;
-% Nuwall_t9=Revol_9{3}(1501:10000)./Ra(2)^0.3;
-% Nuwall_t10=Revol_10{3}(2001:10000)./Ra(3)^0.3;
-% Nuwall_t11=Revol_11{3}(2001:5194)./Ra(4)^0.3;
-% Nuwall_t12=Revol_12{3}(2086:2609)./Ra(5)^0.3;
-% 
-% Nuvol_t8=Nu_8{2}./Ra(1)^0.29;
-% Nuvol_t9=Nu_9{2}./Ra(2)^0.29;
-% Nuvol_t10=Nu_10{2}./Ra(3)^0.29;
-% Nuvol_t11=Nu_11{2}./Ra(4)^0.29;
-% Nuvol_t12=Nu_12{2}./Ra(5)^0.29;
-
 %% --- Power Law Fitting with Error Analysis ---
 % We will perform a linear regression on the log-transformed data.
 % The model is: log10(Y) = b1 + b2*log10(Ra)

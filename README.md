@@ -15,7 +15,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 ### 输入参数 (Inputs)
 
 | 参数名           | 类型        | 描述                                                               |
-| :------------ | :-------- | :--------------------------------------------------------------- |
+|:------------- |:--------- |:---------------------------------------------------------------- |
 | `nx`          | `integer` | x 方向的网格点数。                                                       |
 | `ny`          | `integer` | y 方向的网格点数。                                                       |
 | `Rayleigh`    | `double`  | 瑞利数 (Ra)，描述浮力驱动与粘性耗散和热耗散之比的关键无量纲数。                               |
@@ -26,7 +26,7 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 ### 输出参数 (Output)
 
 | 参数名      | 类型       | 描述                                               |
-| :------- | :------- | :----------------------------------------------- |
+|:-------- |:-------- |:------------------------------------------------ |
 | `params` | `struct` | 一个包含所有计算出的参数的结构体。这个结构体可以方便地传递给其他函数，用于后续的计算和数据处理。 |
 
 ***
@@ -44,13 +44,13 @@ params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, logFileNam
 函数调用有两种主要形式：
 
 1. **从变量绘图**：
-
+   
    ```matlab
    plot_matlab(x_data, y_data, ...);
    ```
 
 2. **从文件绘图**：
-
+   
    ```matlab
    plot_matlab('Filename', 'path/to/file.plt', ...);
    ```
@@ -385,15 +385,19 @@ $$
 在第二个循环中：
 
 1. `UPrime=U-UAvg; VPrime=V-VAvg;` 计算了脉动速度。
+
 2. `[UX_prime,UY_prime,VX_prime,VY_prime]=GRAD1(UPrime,VPrime,params.dx,params.dy);` 计算了脉动速度的梯度。
+
 3. `dissipation=dissipation+(UX_prime.^2+VY_prime.^2+0.5*(VX_prime+UY_prime).^2);`
-
+   
    * 这一步计算了括号内的项 `(...)`，并进行了累加。
+
 4. `dissipation=dissipation/fileSum;`
-
+   
    * 这一步完成了时间平均 `<...>`。
-5. `dissipationAvg=viscosity*dissipation*2;`
 
+5. `dissipationAvg=viscosity*dissipation*2;`
+   
    * 最后乘以 `2ν`。
 
 组合起来，`dissipationAvg` 计算：
@@ -431,23 +435,23 @@ $$
 $$
 
 * **标准一：最长边**
-
+  
   $$
   \Delta_1(i,j) = \max(\Delta x_i, \Delta y_j)
   $$
-
+  
   ```matlab
   grid_resolution = max(deltaX, deltaY); 
   ```
 
 * **标准二：等效面积**
-
+  
   $$
   \Delta_2(i,j) = \sqrt{\Delta x_i \cdot \Delta y_j}
   $$
-
+  
   此处的 `deltaxy` 是由函数直接返回的面积矩阵 `node_area_weights`。
-
+  
   ```matlab
   grid_resolution2 = sqrt(deltaxy);
   ```
@@ -515,9 +519,9 @@ $$
 * **模型比较**: 通过可视化的PDF曲线对比和量化的信息准则（AIC/BIC），判断哪种分布能更好地描述数据。
 
 * **结果输出**:
-
+  
   * 将所有统计和分析结果保存到一个详细的日志文件 (`.txt`)。
-
+  
   * 将PDF数据和拟合曲线数据导出为Tecplot格式的 `.plt` 文件。
 
 ***
@@ -572,15 +576,15 @@ $$
 读取一系列瞬时流场文件（`.bin`），计算时间平均统计量，最终计算出TKE产生项和耗散项的空间分布保存为Tecplot可读的 `.plt` 文件。
 
 * **TKE产生项计算**:
-
+  
   * **剪切产生项 (Shear Production)**: `-<u'_i u'_j> * (∂<U_i>/∂x_j)`
-
+  
   * **浮力产生项 (Buoyancy Production)**: `<v'T'>` (假设重力在y方向)
 
 * **TKE耗散项计算**:
-
+  
   * **伪耗散 (Pseudo-dissipation)**: `ν * <(∂u'_i/∂x_j) * (∂u'_i/∂x_j)>`
-
+  
   * **真耗散 (True dissipation)**: `2 * ν * <s'_{ij}s'_{ij}>`，其中 `s'_{ij}` 是脉动应变率张量。
 
 * **非均匀网格处理**: 使用自定义的有限差分格式（`GRAD1`函数）和积分权重（`nonUniformAverage`函数）来处理非均匀网格。
@@ -590,11 +594,11 @@ $$
 读取全场体积平均的产生率和耗散率（tke\_ra.dat）。
 
 * **可视化**:
-
+  
   * 调用 `plot_matlab` 函数，分别生成两张PNG图。
-
+  
   * **图1 (`p_ra.png`)**: TKE产生率 vs. 瑞利数。
-
+  
   * **图2 (`d_ra.png`)**: TKE耗散率 vs. 瑞利数。
 
 ***
@@ -626,20 +630,19 @@ $$
 * `energyPercentage_[modeNum].dat`: 第 `modeNum` 个模态的能量百分比随时间变化的数据。
 
 * **`Fourier_result_summary.dat`**:这是一个矩阵，每行代表一个模态，每列代表一个统计量：
-
+  
   * **列 1**: `mean(abs(Ax))`
-
+  
   * **列 2**: `mean(abs(Ay))`
-
+  
   * **列 3**: `<E^(m,n)(t)>` (模态能量的时间平均值)
-
+  
   * **列 4**: `<E^(m,n)(t) / E_total(t)>` (能量百分比的时间平均值)
-
+  
   * **列 5**: `<E^(m,n)(t)> / <E_total(t)> * 100`
-
+  
   * **列 6**: `S11 = <E^(m,n)> / E_rms^(m,n)` (稳定性参数)
-
+  
   * **列 7**: `E_rms^(m,n) / <E_total>`
 
 * `energyPercentage.png` (如果 `exportFigure=1`): 显示所有模态能量百分比随时间变化的图表。
-

@@ -30,6 +30,7 @@ else, processed_varargin = varargin; end
 %% 2. 输入解析器
 p = inputParser;
 p.KeepUnmatched = true; p.PartialMatching = false;
+validateXInput = @(x) isnumeric(x) || iscell(x);
 validateYInput = @(y) isnumeric(y) || iscell(y);
 validateLabels = @(c) iscell(c) && all(cellfun(@(s) isstring(s) || ischar(s), c));
 validateInterval = @(v) (isnumeric(v) && all(v > 0) && all(mod(v,1)==0)) || (iscell(v) && all(cellfun(@(x) isnumeric(x) && isscalar(x) && x > 0 && mod(x,1) == 0, v)));
@@ -38,7 +39,8 @@ validateLogical = @(b) islogical(b) || (isnumeric(b) && isscalar(b) && (b==0 || 
 validateFilename = @(f) (ischar(f) || isstring(f)) || (iscell(f) && all(cellfun(@(s) ischar(s) || isstring(s), f)));
 validateVarSpec = @(v) isempty(v) || (ischar(v) || isstring(v)) || (isnumeric(v) && isvector(v)) || iscell(v);
 p.addParameter('DataSource', 'variable', @(s) any(validatestring(s, {'variable', 'file'})));
-p.addParameter('x', [], @isnumeric);
+% p.addParameter('x', [], @isnumeric);
+p.addParameter('x', [], validateXInput);
 p.addParameter('y', [], validateYInput);
 p.addParameter('LegendLabels', {}, validateLabels);
 p.addParameter('ShowLegend', true, validateLogical);
@@ -48,6 +50,9 @@ p.addParameter('Filename', '', validateFilename);
 p.addParameter('XVariable', [], validateVarSpec);
 p.addParameter('YVariable', [], validateVarSpec);
 p.addParameter('CanvasRatio', [10, 7], @(r) isnumeric(r) && isvector(r) && numel(r) == 2 && all(r > 0));
+p.addParameter('Width', [], @(s) isnumeric(s) && isscalar(s) && s > 0);
+p.addParameter('Height', [], @(s) isnumeric(s) && isscalar(s) && s > 0);
+p.addParameter('Units', 'centimeters', @(s) any(validatestring(s, {'centimeters', 'inches', 'pixels', 'points'})));
 p.addParameter('XLim', [], @(lim) isnumeric(lim) && isvector(lim) && numel(lim) == 2);
 p.addParameter('YLim', [], @(lim) isnumeric(lim) && isvector(lim) && numel(lim) == 2);
 p.addParameter('XTickInterval', [], @(s) isnumeric(s) && isscalar(s) && s > 0);
@@ -60,6 +65,8 @@ p.addParameter('LabelInterpreter', 'tex', @(s) any(validatestring(s, {'tex', 'la
 p.addParameter('AxisLayer', 'top', @(s) any(validatestring(s, {'top', 'bottom'})));
 p.addParameter('TickDirection', 'out', @(s) any(validatestring(s, {'in', 'out'})));
 p.addParameter('Padding', false, validateLogical);
+p.addParameter('XTicks', [], @isnumeric);
+p.addParameter('YTicks', [], @isnumeric);
 
 p.parse(processed_varargin{:});
 params = p.Results;
@@ -75,18 +82,51 @@ x_label_default = 'x'; y_label_default = '';
 
 if strcmpi(params.DataSource, 'variable')
     if isempty(params.x) || isempty(params.y), error('Data source is "variable", but x and/or y data are missing.'); end
-    x_data = params.x(:);
-    if isnumeric(params.y), if isvector(params.y), temp_y_cell = {params.y}; else, temp_y_cell = num2cell(params.y, 1); end
-    elseif iscell(params.y), temp_y_cell = params.y; end
+    
+    % --- 标准化 Y 数据 ---
+    % 无论输入是什么，都将Y转换为一个元胞数组 temp_y_cell
+    if isnumeric(params.y)
+        if isvector(params.y)
+            temp_y_cell = {params.y}; % 单个向量
+        else
+            temp_y_cell = num2cell(params.y, 1); % 矩阵的每一列是一条曲线
+        end
+    elseif iscell(params.y)
+        temp_y_cell = params.y; % 已经是元胞数组
+    end
     num_curves = numel(temp_y_cell);
+
+    % --- 标准化 X 数据，使其与 Y 匹配 ---
+    % 无论输入是什么，都将X转换为一个包含 num_curves 个元素的元胞数组 temp_x_cell
+    if isnumeric(params.x)
+        % 如果 X 是单个数值数组，则为每条 Y 曲线复制它
+        temp_x_cell = repmat({params.x(:)}, 1, num_curves);
+    elseif iscell(params.x)
+        if numel(params.x) == 1
+            % 如果 X 是单元素的元胞，也为每条 Y 曲线复制它
+            temp_x_cell = repmat({params.x{1}(:)}, 1, num_curves);
+        elseif numel(params.x) ~= num_curves
+            % 如果 X 是多元素的元胞，其数量必须与 Y 匹配
+            error('If x is a cell array with multiple elements, its size must match the number of y-curves.');
+        else
+            % X 和 Y 一一对应
+            temp_x_cell = params.x;
+        end
+    end
+    
+    % --- 验证并填充最终的数据元胞 ---
     for k = 1:num_curves
-        if ~isnumeric(temp_y_cell{k}) || ~isvector(temp_y_cell{k}), error('Each y-data series must be a numeric vector.'); end
+        x_vec = temp_x_cell{k}(:);
         y_vec = temp_y_cell{k}(:);
-        if length(y_vec) ~= length(x_data), error('All y-vectors must have the same length as the x-vector.'); end
-        x_data_cell{end+1} = x_data; y_data_cell{end+1} = y_vec;
+        
+        if ~isnumeric(x_vec) || ~isvector(x_vec), error('Each x-data series must be a numeric vector.'); end
+        if ~isnumeric(y_vec) || ~isvector(y_vec), error('Each y-data series must be a numeric vector.'); end
+        if length(y_vec) ~= length(x_vec), error('Each y-vector must have the same length as its corresponding x-vector.'); end
+        
+        x_data_cell{end+1} = x_vec; 
+        y_data_cell{end+1} = y_vec;
     end
     y_labels_cell = arrayfun(@(n) sprintf('Curve %d', n), 1:num_curves, 'UniformOutput', false);
-
 else % strcmpi(params.DataSource, 'file')
     % --- Data from one or more files ---
     if isempty(params.Filename), error('DataSource is ''file'', but ''Filename'' was not specified.'); end
@@ -177,15 +217,41 @@ y_label = params.YLabel; if isempty(y_label), y_label = y_label_default; end
 
 
 %% 4. 创建图窗和坐标轴
-fig = figure('Visible', 'off');
-pos = get(fig, 'Position');
-set(fig, 'Position', [pos(1), pos(2), pos(3), pos(3) * (params.CanvasRatio(2) / params.CanvasRatio(1))]);
+fig = figure('Visible', 'on');
+
+% --- 新增/修改的逻辑 ---
+% 如果用户指定了宽度或高度，则使用这些值来精确设置尺寸。
+% 否则，回退到原来的 CanvasRatio 逻辑。
+if ~isempty(params.Width) || ~isempty(params.Height)
+    % 确定最终的宽度和高度
+    final_width = params.Width;
+    final_height = params.Height;
+    
+    % 如果只提供了一个维度，则根据 CanvasRatio 计算另一个维度
+    if isempty(final_width)
+        final_width = final_height * (params.CanvasRatio(1) / params.CanvasRatio(2));
+    elseif isempty(final_height)
+        final_height = final_width * (params.CanvasRatio(2) / params.CanvasRatio(1));
+    end
+    
+    % 设置图窗在屏幕上的位置和尺寸
+    set(fig, 'Units', params.Units, ...
+             'Position', [5, 5, final_width, final_height]); % [left, bottom, width, height]
+else
+    % 保持原来的 CanvasRatio 逻辑 (基于屏幕像素)
+    pos = get(fig, 'Position');
+    set(fig, 'Position', [pos(1), pos(2), pos(3), pos(3) * (params.CanvasRatio(2) / params.CanvasRatio(1))]);
+end
+
 ax = gca;
 
 %% 5. 绘制图形
 hold(ax, 'on');
-default_colors = {[200, 36, 35]/255;[52, 128, 184]/255;[255, 190, 122]/255;[173, 211, 226]/255;[250, 136, 120]/255;[141, 206, 200]/255;[155, 191, 138]/255;[130, 175, 218]/255;[247, 144, 89]/255;[231, 219, 211]/255;[194, 189, 222]/255};
-default_styles.LineWidth = 1.5; default_styles.MarkerSize = 8; default_styles.MarkerFaceColor = 'w';
+% default_colors = {[200, 36, 35]/255;[52, 128, 184]/255;[255, 190, 122]/255;[173, 211, 226]/255;[250, 136, 120]/255;[141, 206, 200]/255;[155, 191, 138]/255;[130, 175, 218]/255;[247, 144, 89]/255;[231, 219, 211]/255;[194, 189, 222]/255};
+default_colors ={[165,   0,  38]/255;[215,  48,  39]/255;[244, 109,  67]/255;[253, 174,  97]/255;[171, 217, 233]/255;[116, 173, 209]/255;[69, 117, 180]/255;[49,  54, 149]/255;[128, 128,  128]/255};
+
+default_styles.LineWidth = 1.5; default_styles.MarkerSize = 8; 
+%default_styles.MarkerFaceColor = 'w';
 style_map = { 'LineColor', 'Color'; 'LineStyle', 'LineStyle'; 'LineWidth', 'LineWidth'; 'Marker', 'Marker'; 'MarkerSize', 'MarkerSize'; 'MarkerEdgeColor', 'MarkerEdgeColor'; 'MarkerFaceColor', 'MarkerFaceColor' };
 for i = 1:numel(y_data_cell)
     current_plot_styles = default_styles;
@@ -201,7 +267,6 @@ for i = 1:numel(y_data_cell)
             else
                 raw_val = style_val;
             end
-            
             resolved_val = raw_val;
             
             % <-- Simplified logic to only handle 'colorN' -->
@@ -222,7 +287,14 @@ for i = 1:numel(y_data_cell)
     if ~isfield(current_plot_styles, 'LineColor')
         current_plot_styles.LineColor = default_colors{mod(i-1, numel(default_colors)) + 1};
     end
+
+    if ~isfield(current_plot_styles, 'MarkerEdgeColor')
+        current_plot_styles.MarkerEdgeColor = current_plot_styles.LineColor;
+    end
     
+    if ~isfield(current_plot_styles, 'MarkerFaceColor')
+    current_plot_styles.MarkerFaceColor = current_plot_styles.MarkerEdgeColor;
+    end
     % Build plot arguments
     plot_args = {};
     for j = 1:size(style_map, 1)
@@ -244,10 +316,76 @@ for i = 1:numel(y_data_cell)
     end
     plot(ax, x_data_cell{i}, y_data_cell{i}, plot_args{:});
 end
+% --- 将循环顺序从 1:N 修改为 N:-1:1 ---
+% for i = numel(y_data_cell):-1:1
+%     current_plot_styles = default_styles;
+%     
+%     % --- Style processing loop ---
+%     % 循环体内部的所有代码都保持不变
+%     for j = 1:size(style_map, 1)
+%         user_prop_name = style_map{j, 1};
+%         if isfield(unmatched_styles, user_prop_name)
+%             style_val = unmatched_styles.(user_prop_name);
+%             
+%             if iscell(style_val)
+%                 % 注意：这里也需要调整索引以匹配倒序
+%                 raw_val = style_val{mod(i-1, numel(style_val)) + 1};
+%             else
+%                 raw_val = style_val;
+%             end
+%             
+%             resolved_val = raw_val;
+%             
+%             % <-- Simplified logic to only handle 'colorN' -->
+%             if strcmpi(user_prop_name, 'LineColor') && (ischar(raw_val) || isstring(raw_val))
+%                 tokens = regexp(lower(char(raw_val)), '^color(\d+)$', 'tokens');
+%                 if ~isempty(tokens)
+%                     idx = str2double(tokens{1}{1});
+%                     if idx > 0 && idx <= numel(default_colors)
+%                         resolved_val = default_colors{idx};
+%                     end
+%                 end
+%             end
+%             current_plot_styles.(user_prop_name) = resolved_val;
+%         end
+%     end
+%     
+%     % Apply default color if not specified by user
+%     if ~isfield(current_plot_styles, 'LineColor')
+%         current_plot_styles.LineColor = default_colors{mod(i-1, numel(default_colors)) + 1};
+%     end
+% 
+%     if ~isfield(current_plot_styles, 'MarkerEdgeColor')
+%         current_plot_styles.MarkerEdgeColor = current_plot_styles.LineColor;
+%     end
+%     
+%     if ~isfield(current_plot_styles, 'MarkerFaceColor')
+%     current_plot_styles.MarkerFaceColor = current_plot_styles.MarkerEdgeColor;
+%     end
+%     % Build plot arguments
+%     plot_args = {};
+%     for j = 1:size(style_map, 1)
+%         user_prop_name = style_map{j, 1};
+%         matlab_prop_name = style_map{j, 2};
+%         if isfield(current_plot_styles, user_prop_name)
+%             plot_args = [plot_args, {matlab_prop_name, current_plot_styles.(user_prop_name)}];
+%         end
+%     end
+%     
+%     % MarkerInterval logic and plot command
+%     if iscell(params.MarkerInterval), current_interval = params.MarkerInterval{mod(i-1, numel(params.MarkerInterval)) + 1};
+%     elseif numel(params.MarkerInterval) > 1, current_interval = params.MarkerInterval(mod(i-1, numel(params.MarkerInterval)) + 1);
+%     else, current_interval = params.MarkerInterval; end
+%     if current_interval > 1
+%         marker_indices = 1:current_interval:numel(x_data_cell{i});
+%         plot_args = [plot_args, {'MarkerIndices', marker_indices}];
+%     end
+%     plot(ax, x_data_cell{i}, y_data_cell{i}, plot_args{:});
+% end
 hold(ax, 'off');
 
 %% 6. 自定义坐标轴和标签
-set(ax, 'FontName', 'Times New Roman', 'FontSize', 22, 'LineWidth', 1.2, 'Box', 'on');
+set(ax, 'FontName', 'Times', 'FontSize', 35, 'LineWidth', 2, 'Box', 'on');
 set(ax, 'Layer', 'top');
 
 if contains(lower(params.LogScale), 'x'), if any(cellfun(@(x) any(x <= 0), x_data_cell)), warning('plot_matlab:LogData', 'X-data contains non-positive values, which will be ignored on a log scale.'); end, set(ax, 'XScale', 'log'); end
@@ -264,15 +402,44 @@ if params.ShowLegend && numel(y_data_cell) > 1 && ~isempty(y_labels_cell)
 end
 
 if ~isempty(params.XLim), xlim(ax, params.XLim); end, if ~isempty(params.YLim), ylim(ax, params.YLim); end
+if ~isempty(params.XTicks)
+    xticks(ax, params.XTicks);
+% 保留原来的 TickInterval 逻辑，但用 elseif
+elseif ~strcmpi(get(ax, 'XScale'), 'log') && ~isempty(params.XTickInterval)
+    current_xlim = xlim(ax); 
+    xticks(ax, current_xlim(1):params.XTickInterval:current_xlim(2)); 
+end
+if ~isempty(params.YTicks)
+    yticks(ax, params.YTicks);
+% 保留原来的 TickInterval 逻辑，但用 elseif
+elseif ~strcmpi(get(ax, 'YScale'), 'log') && ~isempty(params.YTickInterval)
+    current_ylim = ylim(ax); 
+    yticks(ax, current_ylim(1):params.YTickInterval:current_ylim(2)); 
+end
+
 if ~strcmpi(get(ax, 'XScale'), 'log') && ~isempty(params.XTickInterval), current_xlim = xlim(ax); xticks(ax, current_xlim(1):params.XTickInterval:current_xlim(2)); end
 if ~strcmpi(get(ax, 'YScale'), 'log') && ~isempty(params.YTickInterval), current_ylim = ylim(ax); yticks(ax, current_ylim(1):params.YTickInterval:current_ylim(2)); end
 grid off;
 %% 7. 输出图片
+% --- 新增/修改的逻辑 ---
+% 为了确保输出文件的尺寸与我们设定的完全一致，
+% 我们需要设置 'Paper...' 相关的属性。
+if ~isempty(params.Width) || ~isempty(params.Height)
+    set(fig, 'PaperUnits', params.Units, ...
+             'PaperSize', [final_width, final_height], ...
+             'PaperPositionMode', 'auto', ...
+             'PaperPosition', [0, 0, final_width, final_height]);
+else
+    % 如果没有指定尺寸，使用默认的 'auto' 模式，它会尽量匹配屏幕上的样子
+    set(fig, 'PaperPositionMode', 'auto');
+end
+
 print(fig, params.OutputFilename, '-dpng', ['-r' num2str(params.Resolution)]);
 fprintf('successfully save: %s\n', params.OutputFilename);
-close(fig);
+% close(fig);
 
 end
+
 
 
 % --- Helper function for evaluating expressions ---
