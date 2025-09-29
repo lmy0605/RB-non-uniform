@@ -43,7 +43,6 @@ for i = 1:fileSum
 
     U=U/params.velocityUnit;
     V=V/params.velocityUnit;
-    T=(T-params.Tref)/(params.Thot-params.Tcold);
 
     Uavg = Uavg+U;
     Vavg = Vavg+V;
@@ -77,7 +76,6 @@ for i = 1:fileSum
 
     U=U/params.velocityUnit;
     V=V/params.velocityUnit;
-    T=(T-params.Tref)/(params.Thot-params.Tcold);
 
     UU_PRIME = UU_PRIME+(U-Uavg).^2;
     UV_PRIME = UV_PRIME+(V-Vavg).*(U-Uavg);
