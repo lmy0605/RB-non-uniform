@@ -1,13 +1,21 @@
 clear; close all; clc;
 
+%% 并行计算设置 (Parallel Computing Settings)
+% 启动并行池，MATLAB会自动决定使用多少个核心
+% 如果您想指定核心数，例如8核，可以使用 parpool(8);
+if isempty(gcp('nocreate'))
+    parpool(6);
+end
+
 %% basic settings
-fileNumStart=2001; % This is not used in a loop, but kept for context
+fileNumStart=2001;
 fileNumEnd=10000;
 fileNumInterval=1;
 fileSum=fileNumEnd-fileNumStart+1;
-inputDir = '/nfsdata4/AXu/RB-non-uniform/Ra1e9-mesh513/binFile-1-10000/'; 
+fileNumbers = fileNumStart:fileNumInterval:fileNumEnd;
+inputDir = '/nfsdata4/AXu/RB-non-uniform/Ra1e10-mesh1025/binFile-1-10000/'; % please rename data folder as "binFile"
 namebase = 'buoyancyCavity-';
-casename='1e9'; 
+casename='1e10'; 
 
 % --- Check if input directory exists before proceeding ---
 disp('Verifying input directory...');
@@ -16,12 +24,11 @@ if ~isfolder(inputDir)
 end
 disp(['Input directory found: ', inputDir]);
 
-nx=513;
+nx=1025;
 ny=nx;
-constA=2.1;
-Rayleigh=1e9;
+constA=2.5;
+Rayleigh=1e10;
 Prandtl=0.71;
-
 
 params = calculateSystemParameters(nx,ny, Rayleigh, Prandtl,constA,'log.log');
 viscosity=sqrt(Prandtl/Rayleigh);
@@ -31,8 +38,8 @@ Uavg = zeros(nx, ny);
 Vavg = zeros(nx, ny);
 Tavg = zeros(nx, ny);
 
-for fileNum = fileNumStart:fileNumInterval:fileNumEnd
-    t=fileNum-fileNumStart+1;
+parfor i = 1:fileSum
+    fileNum = fileNumbers(i);
     if(mod(fileNum,100)==0)
         disp(['Current data fsile is ', [namebase, num2str(fileNum),'.bin']]);
     end
@@ -65,25 +72,8 @@ GRAD_UY_SUM= zeros(nx, ny);
 GRAD_VX_SUM= zeros(nx, ny);
 GRAD_VY_SUM= zeros(nx, ny);
 
-PSEUDO11=zeros(nx, ny);
-PSEUDO12=zeros(nx, ny);
-PSEUDO21=zeros(nx, ny);
-PSEUDO22=zeros(nx, ny);
-
-true11=zeros(nx, ny);
-true12=zeros(nx, ny);
-true22=zeros(nx, ny);
-
-diff11= zeros(nx, ny);
-diff12= zeros(nx, ny);
-diff22= zeros(nx, ny);
-
-diff211= zeros(nx, ny);
-diff212= zeros(nx, ny);
-diff222= zeros(nx, ny);
-
-for fileNum = fileNumStart:fileNumInterval:fileNumEnd
-    t=fileNum-fileNumStart+1;
+parfor i = 1:fileSum
+    fileNum = fileNumbers(i);
     if(mod(fileNum,100)==0)
         disp(['Current data file is ', [namebase, num2str(fileNum),'.bin']]);
     end
@@ -107,18 +97,6 @@ for fileNum = fileNumStart:fileNumInterval:fileNumEnd
     GRAD_UY_SUM= GRAD_UY_SUM+UY;
     GRAD_VX_SUM= GRAD_VX_SUM+VX;
     GRAD_VY_SUM= GRAD_VY_SUM+VY;
-
-    [UX_prime,UY_prime,VX_prime,VY_prime]=GRAD1(U-Uavg,V-Vavg,params.dx,params.dy);
-
-    PSEUDO11=PSEUDO11+UX_prime.^2;
-    PSEUDO12=PSEUDO12+UY_prime.^2;
-    PSEUDO21=PSEUDO21+VX_prime.^2;
-    PSEUDO22=PSEUDO22+VY_prime.^2;
-
-    true11=true11+UX_prime.^2;
-    true12=true12+0.5*(VX_prime+UY_prime).^2;
-    true22=true22+VY_prime.^2;
-
 end
 
 UU_PRIME = UU_PRIME/fileSum;
@@ -126,74 +104,27 @@ UV_PRIME = UV_PRIME/fileSum;
 VV_PRIME = VV_PRIME/fileSum;
 VT_PRIME = VT_PRIME/fileSum;
 
-% GRAD_UX_SUM= GRAD_UX_SUM/fileSum*params.length_LB;
-% GRAD_UY_SUM= GRAD_UY_SUM/fileSum*params.length_LB;
-% GRAD_VX_SUM= GRAD_VX_SUM/fileSum*params.length_LB;
-% GRAD_VY_SUM= GRAD_VY_SUM/fileSum*params.length_LB;
-% 
-% PSEUDO11=PSEUDO11/fileSum*params.length_LB.^2;
-% PSEUDO12=PSEUDO12/fileSum*params.length_LB.^2;
-% PSEUDO21=PSEUDO21/fileSum*params.length_LB.^2;
-% PSEUDO22=PSEUDO22/fileSum*params.length_LB.^2;
-% 
-% true11=true11/fileSum*params.length_LB.^2;
-% true12=true12/fileSum*params.length_LB.^2;
-% true22=true22/fileSum*params.length_LB.^2;
-% 
-% diff11=diff11/fileSum*params.length_LB.^2;
-% diff22=diff22/fileSum*params.length_LB.^2;
-% diff12=diff12/fileSum*params.length_LB.^2;
-% 
-% diff211=diff211/fileSum*params.length_LB.^2;
-% diff222=diff222/fileSum*params.length_LB.^2;
-% diff212=diff212/fileSum*params.length_LB.^2;
-
 GRAD_UX_SUM= GRAD_UX_SUM/fileSum;
 GRAD_UY_SUM= GRAD_UY_SUM/fileSum;
 GRAD_VX_SUM= GRAD_VX_SUM/fileSum;
 GRAD_VY_SUM= GRAD_VY_SUM/fileSum;
 
-PSEUDO11=PSEUDO11/fileSum;
-PSEUDO12=PSEUDO12/fileSum;
-PSEUDO21=PSEUDO21/fileSum;
-PSEUDO22=PSEUDO22/fileSum;
-
-true11=true11/fileSum;
-true12=true12/fileSum;
-true22=true22/fileSum;
-
 shearP=-UU_PRIME.*GRAD_UX_SUM-UV_PRIME.*GRAD_UY_SUM-UV_PRIME.*GRAD_VX_SUM-VV_PRIME.*GRAD_VY_SUM;
 buoyancyP=VT_PRIME;
 Pruduction=shearP+buoyancyP;
 
-pseudo_dissipation=sqrt(Prandtl/Rayleigh)*(PSEUDO11+PSEUDO22+PSEUDO21+PSEUDO12);
-true_dissipation=sqrt(Prandtl/Rayleigh)*(true22+true12+true11)*2;
+tkeAvg=0.5.*(UU_PRIME+VV_PRIME);
 
-[~,~,pavg]=nonUniformAverage(Pruduction,params.xGrid,params.yGrid);
-pavg=sum(pavg(:))/params.length0.^2;
-[~,~,tdavg]=nonUniformAverage(true_dissipation,params.xGrid,params.yGrid);
-tdavg=sum(tdavg(:))/params.length0.^2;
-disp(pavg);
-disp(tdavg);
 %%
 [Cx, Cy] = ndgrid(params.xGrid(1:end-1), params.yGrid(1:end-1));
 
 %production
 tec_file = liton_ordered_tec.TEC_FILE;
-tec_file.FileName = 'production';
-tec_file.Variables = {'X','Y','s','b','p'};
+tec_file.FileName = 'productionAvg';
+tec_file.Variables = {'X','Y','s','b','p','tke'};
 tec_file.Zones = liton_ordered_tec.TEC_ZONE;
-tec_file.Zones.Data = {Cx,Cy,shearP,buoyancyP,Pruduction};
+tec_file.Zones.Data = {Cx,Cy,shearP,buoyancyP,Pruduction,tkeAvg};
 tec_file = tec_file.write_plt();
-
-%dissipation
-tec_file = liton_ordered_tec.TEC_FILE;
-tec_file.FileName = 'dissipation';
-tec_file.Variables = {'X','Y','pseudo','true'};
-tec_file.Zones = liton_ordered_tec.TEC_ZONE;
-tec_file.Zones.Data = {Cx,Cy,pseudo_dissipation,true_dissipation};
-tec_file = tec_file.write_plt();
-
 
 %%
 function [U, V ,T, rho] = readBinaryFile(file, nx, ny)
