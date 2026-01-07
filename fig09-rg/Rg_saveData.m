@@ -28,7 +28,7 @@ for i = 1:length(Ra_list)
     
     % --- 计算系统参数 ---
     % 注意：确保 calculateSystemParameters 函数在路径中
-    params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA, 'log.log');
+    params = calculateSystemParameters(nx, ny, Rayleigh, Prandtl, constA);
     
     % --- 构建文件路径并加载数据 ---
     filename = sprintf('../data/LSC_%s.mat', suffix);
@@ -63,3 +63,8 @@ for i = 1:length(Ra_list)
         Rg_list(i) = NaN;
     end
 end
+
+output_filename = 'Rg_Ra_Results.mat';
+save(output_filename, 'Ra_list', 'Rg_list');
+
+fprintf('\n处理完成。\n结果已保存至: %s\n', output_filename);
